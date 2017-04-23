@@ -26,23 +26,41 @@ const (
   PORT = ":57339"
 )
 
-var buck *s3util.Bucket
-var matrix string
-var high int
+type RamseyServer struct {
+  Buck *s3util.Bucket
+  Matrix string
+  High int
+  Clients []net.Conn
+}
 
-func main() {
-  high = 0
-  buck = s3util.NewBucket(os.Getenv(HOME) + AWS_CREDS_FILE, AWS_PROFILE, REGION)
+func NewRamseyServer(awsCredFile string, awsProfile string, awsRegion string) *RamseyServer {
+  buck := s3util.NewBucket(awsCredFile, awsProfile, awsRegion)
+  bucket := BUCKET
+  prefix := OBJECT_PATHNAME
+  matrix, high := buck.FindHighestMatrix(bucket, prefix)
+  rs := &RamseyServer{
+    Buck: buck,
+    Matrix: matrix,
+    High: high,
+    Clients: make([]net.Conn, 0, 10),
+  }
+  return rs
+}
+
+func (rs *RamseyServer) run() {
   fmt.Println("Launching server...")
   ln, _ := net.Listen("tcp", PORT)
   for {
     conn, _ := ln.Accept()
+    rs.Clients = append(rs.Clients, conn)
     fmt.Printf("New connection from: %s\n", conn.RemoteAddr().String())
-    go processConn(conn)
+    go rs.ProcessConn(conn)
   }
 }
 
-func processConn(conn net.Conn) {
+
+
+func (rs *RamseyServer) ProcessConn(conn net.Conn) {
   scanner := bufio.NewScanner(conn)
   for {
     fmt.Println("loop running")
@@ -58,12 +76,12 @@ func processConn(conn net.Conn) {
     case SUCCESS:
       n := scanner.Text()
       nInt, _ := strconv.Atoi(n)
-      if(nInt >= high) {
-        matrix := readMatrix(scanner, nInt)
-        high = nInt
-        buck.Upload([]byte(matrix), BUCKET, OBJECT_PATHNAME + n)
+      if(nInt >= rs.High) {
+        rs.Matrix = readMatrix(scanner, nInt)
+        rs.High = nInt
+        rs.Buck.Upload([]byte(rs.Matrix), BUCKET, OBJECT_PATHNAME + n)
       }
-      resp := fmt.Sprintf("%s\n%d\n%s", strconv.Itoa(ACK), high, matrix)
+      resp := fmt.Sprintf("%s\n%d\n%s", strconv.Itoa(ACK), rs.High, rs.Matrix)
       fmt.Println(resp)
       conn.Write([]byte(resp))
       break;
@@ -95,4 +113,9 @@ func checkError(err error) {
     fmt.Fprintf(os.Stderr, "Fatal Error: %s", err.Error())
     os.Exit(1)
   }
+}
+
+func main() {
+  rs := NewRamseyServer(os.Getenv(HOME) + AWS_CREDS_FILE, AWS_PROFILE, REGION)
+  rs.run()
 }

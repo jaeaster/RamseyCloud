@@ -6,6 +6,8 @@ import(
   "context"
   "fmt"
   "bytes"
+  "strings"
+  "strconv"
   "github.com/aws/aws-sdk-go/aws"
   "github.com/aws/aws-sdk-go/aws/awsutil"
   "github.com/aws/aws-sdk-go/aws/awserr"
@@ -20,9 +22,8 @@ const (
 )
 
 type Bucket struct {
-  svc *s3.S3
+  Svc *s3.S3
 }
-
 
 func NewBucket(credFile string, profile string, region string) *Bucket{
   creds := credentials.NewSharedCredentials(credFile, profile)
@@ -30,8 +31,8 @@ func NewBucket(credFile string, profile string, region string) *Bucket{
     Region: aws.String(region),
     Credentials: creds,
   }))
-  svc := s3.New(sess)
-  return &Bucket{svc}
+  Svc := s3.New(sess)
+  return &Bucket{Svc}
 }
 
 func (buck *Bucket) Upload(data []byte, bucket string, dstPath string) {
@@ -47,7 +48,7 @@ func (buck *Bucket) Upload(data []byte, bucket string, dstPath string) {
   }
   defer cancelFn()
 
-  resp, err := buck.svc.PutObjectWithContext(ctx, &s3.PutObjectInput{
+  resp, err := buck.Svc.PutObjectWithContext(ctx, &s3.PutObjectInput{
     Bucket: aws.String(bucket),
     Key:    aws.String(dstPath),
     Body:   bytes.NewReader(data),
@@ -61,6 +62,45 @@ func (buck *Bucket) Upload(data []byte, bucket string, dstPath string) {
     }
     os.Exit(1)
   }
-
   fmt.Printf("Response %s", awsutil.StringValue(resp))
+}
+
+func (buck *Bucket) FindHighestMatrix(bucket string, prefix string) (string, int) {
+  output, err := buck.Svc.ListObjects(&s3.ListObjectsInput{
+    Bucket: &bucket,
+    Prefix: &prefix,
+  })
+  checkError(err)
+  highest := 0
+  var retkey, n string
+  var nInt int
+  for _, obj := range output.Contents {
+    n = strings.Split(*(obj.Key), "/")[1]
+    if n != "" {
+      nInt, err = strconv.Atoi(n)
+      checkError(err)
+    } else {
+      nInt = 0
+    }
+    if nInt > highest {
+      highest = nInt
+      retkey = *(obj.Key)
+    }
+  }
+  dataStruct, err := buck.Svc.GetObject(&s3.GetObjectInput{
+    Bucket: &bucket,
+    Key: &retkey,
+  })
+  checkError(err)
+  buf := new(bytes.Buffer)
+  buf.ReadFrom(dataStruct.Body)
+  matrix := buf.String()
+  return matrix, nInt
+}
+
+func checkError(err error) {
+  if err != nil {
+    fmt.Fprintf(os.Stderr, "Fatal Error: %s", err.Error())
+    os.Exit(1)
+  }
 }
