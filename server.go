@@ -10,6 +10,12 @@ import(
 )
 
 const (
+  SUCCESS = iota
+  ACK
+  STATE_QUERY
+)
+
+const (
   OBJECT_PATHNAME = "counterexamples/"
   TIMEOUT = "5s"
   REGION = "us-west-1"
@@ -21,8 +27,11 @@ const (
 )
 
 var buck *s3util.Bucket
+var matrix string
+var high int
 
 func main() {
+  high = 0
   buck = s3util.NewBucket(os.Getenv(HOME) + AWS_CREDS_FILE, AWS_PROFILE, REGION)
   fmt.Println("Launching server...")
   ln, _ := net.Listen("tcp", PORT)
@@ -37,17 +46,26 @@ func processConn(conn net.Conn) {
   scanner := bufio.NewScanner(conn)
   for {
     fmt.Println("loop running")
-    _ = scanner.Scan()
+    mas := scanner.Scan()
+    if(!mas) {
+      return
+    }
     messageType := scanner.Text()
     fmt.Printf("Message Type Received: %s\n", messageType)
     _ = scanner.Scan()
-    switch(messageType) {
-    case "SUCCESS":
+    intMessageType, _ := strconv.Atoi(messageType)
+    switch(intMessageType) {
+    case SUCCESS:
       n := scanner.Text()
       nInt, _ := strconv.Atoi(n)
-      matrix := readMatrix(scanner, nInt)
-      buck.Upload([]byte(matrix), BUCKET, OBJECT_PATHNAME + n)
-      conn.Write([]byte(n + " Counterexample Saved!\n"))
+      if(nInt >= high) {
+        matrix := readMatrix(scanner, nInt)
+        high = nInt
+        buck.Upload([]byte(matrix), BUCKET, OBJECT_PATHNAME + n)
+      }
+      resp := fmt.Sprintf("%s\n%d\n%s", strconv.Itoa(ACK), high, matrix)
+      fmt.Println(resp)
+      conn.Write([]byte(resp))
       break;
     default:
       content := scanner.Text()
@@ -60,7 +78,6 @@ func processConn(conn net.Conn) {
 func readMatrix(scanner *bufio.Scanner, n int) string {
   matrix := ""
   for i := 0; i < n; i++ {
-    fmt.Println("Read matrix line")
     _ = scanner.Scan()
     matrixLine := scanner.Text()
     matrix += matrixLine + "\n"

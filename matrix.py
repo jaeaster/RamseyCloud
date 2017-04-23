@@ -1,5 +1,17 @@
 import os
 from random import randint
+from socket import *
+
+MAX_RECV_LINE = 2048
+TIMEOUT = 2
+PATH_STRING = "/Users/jdogg5566/go/src/github.com/easterandjay/cloud/counterexamples/"
+
+m = {
+  "SUCCESS": "0",
+  "ACK": "1",
+  "STATE_QUERY": "2"  
+}
+
 def make_matrix(dimension):## lager en matrise av storrelse dimension
     return [[0 for col in range(dimension)] for row in range(dimension)]
 
@@ -56,9 +68,8 @@ def bitflipper(matrix):
 def filenamestring(size):
     return str("ramsey-" + str(size) + ".txt")
 def highest_ramsey_dir():
-    path_string = "//Users//KristofferAlvernAndersen///PycharmProjects//Ramsey//Textfiles//"
     highest = 0
-    for fil in os.listdir(path_string):
+    for fil in os.listdir(PATH_STRING):
         if fil.startswith("ramsey-"):
             a = str(fil)
             a = a[7:-4]
@@ -73,14 +84,13 @@ def change_to_higher(current):# burde kanskje
         return True
 
 def write_matrix_to_file(matrix): # write to file
-    path_string = "//Users//KristofferAlvernAndersen///PycharmProjects//Ramsey//Textfiles//"
     size = len(matrix[0])
     filename = filenamestring(size)
-    for fil in os.listdir(path_string):
+    for fil in os.listdir(PATH_STRING):
         if fil.endswith(filename):
             return
     delimitter = "-"
-    path = path_string + filename
+    path = PATH_STRING + filename
     dim = len(matrix[0])
     line = ""
     with open(path, "w") as out:
@@ -90,8 +100,39 @@ def write_matrix_to_file(matrix): # write to file
             out.write(line.replace("\n", "")[0:-1] + "\n")
             line = ""
 
+def send_matrix_to_server(matrix):
+    dim = len(matrix[0])
+    line = ""
+    for i in range(dim):
+        for j in range(dim):
+            line += str(matrix[i][j])
+        line += "\n"
+    msg = "{0}\n{1}\n{2}".format(m["SUCCESS"], dim, line)
+    server_socket.send(str.encode(msg))
+    resp = recv_payload(server_socket).split("\n", 2)
+    message_type, n, new_matrix = resp[0], int(resp[1]), resp[2]
+    ret_matrix = make_matrix(n)
+    if message_type == m["ACK"]:
+        new_matrix = new_matrix[:-1].split("\n")
+        for i, line in enumerate(new_matrix):
+            for j, entry in enumerate(line):
+                ret_matrix[i][j] = int(entry)
+        return ret_matrix
+    else:
+        return matrix
 
-
+def recv_payload(conn):
+    payload = ""
+    while(1):
+        try:
+            partial_load = conn.recv(MAX_RECV_LINE)
+            partial_load = bytes.decode(partial_load)
+            if not partial_load:
+                return payload
+            else:
+                payload += partial_load
+        except:
+            return payload
 
 def clique_count(g,gsize):# g is an array of all
     count = 0
@@ -139,8 +180,7 @@ def read_highest_from_file():
 
 
 def read_matrix_from_file(filename,dimension):# les galskapen fra fil
-    path_string = "//Users//KristofferAlvernAndersen///PycharmProjects//Ramsey//Textfiles//"
-    path = path_string + filename
+    path = PATH_STRING + filename
     delimitter = "-"
     matrix = make_matrix(dimension)
     with open(path, "r") as read_file:
@@ -297,11 +337,18 @@ def startfromhighest():
         print("Counterexample found of size " + str(dim))
         print("Number of cycles in total = " + str(counter))
         write_matrix_to_file(current_matrix)
+        current_matrix = send_matrix_to_server(current_matrix)
         # matrix_print(current_matrix)
         dim += 1
         current_matrix = expand_matrix(current_matrix)
         current_count = 100000000000
 
+serverPort = 57339
+serverName = "0.0.0.0"
+server_socket = socket(AF_INET, SOCK_STREAM)
+server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+server_socket.settimeout(TIMEOUT)
+server_socket.connect((serverName,serverPort))
 #makeplain10()
 #brute()
 #wait4better()
