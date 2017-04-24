@@ -61,11 +61,13 @@ func (rs *RamseyServer) run() {
 
 
 func (rs *RamseyServer) ProcessConn(conn net.Conn) {
+  defer conn.Close()
   scanner := bufio.NewScanner(conn)
   for {
     fmt.Println("loop running")
     mas := scanner.Scan()
     if(!mas) {
+      fmt.Printf("Closing connection to %s\n", conn.RemoteAddr().String())
       return
     }
     messageType := scanner.Text()
@@ -74,23 +76,33 @@ func (rs *RamseyServer) ProcessConn(conn net.Conn) {
     intMessageType, _ := strconv.Atoi(messageType)
     switch(intMessageType) {
     case SUCCESS:
-      n := scanner.Text()
-      nInt, _ := strconv.Atoi(n)
-      if(nInt >= rs.High) {
-        rs.Matrix = readMatrix(scanner, nInt)
-        rs.High = nInt
-        rs.Buck.Upload([]byte(rs.Matrix), BUCKET, OBJECT_PATHNAME + n)
-      }
-      resp := fmt.Sprintf("%s\n%d\n%s", strconv.Itoa(ACK), rs.High, rs.Matrix)
-      fmt.Println(resp)
-      conn.Write([]byte(resp))
+      rs.ProcessMatrixResult(scanner)
+      rs.SendMatrixACK(conn)
       break;
+    case STATE_QUERY:
+      rs.SendMatrixACK(conn)
     default:
       content := scanner.Text()
       conn.Write([]byte("Content received: " + content + "\n"))
       break;
     }
   }
+}
+
+func (rs *RamseyServer) ProcessMatrixResult(scanner *bufio.Scanner) {
+  n := scanner.Text()
+  nInt, _ := strconv.Atoi(n)
+  if(nInt >= rs.High) {
+    rs.Matrix = readMatrix(scanner, nInt)
+    rs.High = nInt
+    rs.Buck.Upload([]byte(rs.Matrix), BUCKET, OBJECT_PATHNAME + n)
+  }
+}
+
+func (rs *RamseyServer) SendMatrixACK(conn *net.Conn) {
+  resp := fmt.Sprintf("%s\n%d\n%s", strconv.Itoa(ACK), rs.High, rs.Matrix)
+  fmt.Println(resp)
+  conn.Write([]byte(resp))
 }
 
 func readMatrix(scanner *bufio.Scanner, n int) string {

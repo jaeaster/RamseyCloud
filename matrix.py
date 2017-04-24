@@ -100,40 +100,6 @@ def write_matrix_to_file(matrix): # write to file
             out.write(line.replace("\n", "")[0:-1] + "\n")
             line = ""
 
-def send_matrix_to_server(matrix):
-    dim = len(matrix[0])
-    line = ""
-    for i in range(dim):
-        for j in range(dim):
-            line += str(matrix[i][j])
-        line += "\n"
-    msg = "{0}\n{1}\n{2}".format(m["SUCCESS"], dim, line)
-    server_socket.send(str.encode(msg))
-    resp = recv_payload(server_socket).split("\n", 2)
-    message_type, n, new_matrix = resp[0], int(resp[1]), resp[2]
-    ret_matrix = make_matrix(n)
-    if message_type == m["ACK"]:
-        new_matrix = new_matrix[:-1].split("\n")
-        for i, line in enumerate(new_matrix):
-            for j, entry in enumerate(line):
-                ret_matrix[i][j] = int(entry)
-        return ret_matrix
-    else:
-        return matrix
-
-def recv_payload(conn):
-    payload = ""
-    while(1):
-        try:
-            partial_load = conn.recv(MAX_RECV_LINE)
-            partial_load = bytes.decode(partial_load)
-            if not partial_load:
-                return payload
-            else:
-                payload += partial_load
-        except:
-            return payload
-
 def clique_count(g,gsize):# g is an array of all
     count = 0
     sgsize = 10
@@ -296,9 +262,47 @@ def wait4better2():  # main
         current_matrix = expand_matrix(current_matrix)
         current_count = 100000000000
 
+def send_matrix_to_server(matrix):
+    dim = len(matrix[0])
+    line = ""
+    for i in range(dim):
+        for j in range(dim):
+            line += str(matrix[i][j])
+        line += "\n"
+    msg = "{0}\n{1}\n{2}".format(m["SUCCESS"], dim, line)
+    server_socket.send(str.encode(msg))
+    resp = recv_payload(server_socket).split("\n", 2)
+    message_type, n, new_matrix = resp[0], int(resp[1]), resp[2]
+    ret_matrix = make_matrix(n)
+    if message_type == m["ACK"]:
+        new_matrix = new_matrix[:-1].split("\n")
+        for i, line in enumerate(new_matrix):
+            for j, entry in enumerate(line):
+                ret_matrix[i][j] = int(entry)
+        return ret_matrix
+    else:
+        return matrix
+
+def recv_payload(conn):
+    payload = ""
+    while(1):
+        try:
+            partial_load = conn.recv(MAX_RECV_LINE)
+            partial_load = bytes.decode(partial_load)
+            if not partial_load:
+                return payload
+            else:
+                payload += partial_load
+        except:
+            return payload
+
+def query_server_for_highest():
+    server_socket
+
 
 def startfromhighest():
-    test_read = read_highest_from_file()
+    # test_read = read_highest_from_file()
+    test_read = query_server_for_highest()
     dim = len(test_read[0])
     counter = 0
     current_count = 100000000000000
