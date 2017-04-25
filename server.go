@@ -6,6 +6,7 @@ import(
   "bufio"
   "os"
   "strconv"
+  "strings"
   "github.com/EasterAndJay/cloud/s3util"
 )
 
@@ -58,28 +59,47 @@ func (rs *RamseyServer) run() {
   }
 }
 
+func RecvMsg(scanner *bufio.Scanner) (string, bool) {
+  msg := ""
+  for scanner.Scan() {
+    line := scanner.Text()
+    fmt.Println(line)
+    msg += line + "\n"
+    if line == "END" {
+      return msg, false
+    }
+  }
+  return msg, true
+}
 
 
 func (rs *RamseyServer) ProcessConn(conn net.Conn) {
   defer conn.Close()
   scanner := bufio.NewScanner(conn)
   for {
-    fmt.Println("loop running")
-    mas := scanner.Scan()
-    if(!mas) {
+    fmt.Println("Waiting for message")
+    msg, closed := RecvMsg(scanner)
+    if(closed) {
       fmt.Printf("Closing connection to %s\n", conn.RemoteAddr().String())
       return
     }
-    messageType := scanner.Text()
+    split := strings.SplitN(msg, "\n", 2)
+    messageType, body := split[0], split[1]
     fmt.Printf("Message Type Received: %s\n", messageType)
-    _ = scanner.Scan()
     intMessageType, _ := strconv.Atoi(messageType)
     switch(intMessageType) {
     case SUCCESS:
-      rs.ProcessMatrixResult(scanner)
-      rs.SendMatrixACK(conn)
+      update := rs.ProcessMatrixResult(body, conn.RemoteAddr())
+      if update {
+        for _, client := range rs.Clients {
+          rs.SendMatrixACK(client)
+        }
+      } else {
+        rs.SendMatrixACK(conn)
+      }
       break;
     case STATE_QUERY:
+      fmt.Printf("Sending STATE_QUERY Response")
       rs.SendMatrixACK(conn)
     default:
       content := scanner.Text()
@@ -89,30 +109,23 @@ func (rs *RamseyServer) ProcessConn(conn net.Conn) {
   }
 }
 
-func (rs *RamseyServer) ProcessMatrixResult(scanner *bufio.Scanner) {
-  n := scanner.Text()
+func (rs *RamseyServer) ProcessMatrixResult(body string, ip Addr) bool {
+  split := strings.SplitN(body, "\n", 2)
+  n := split[0]
   nInt, _ := strconv.Atoi(n)
   if(nInt >= rs.High) {
-    rs.Matrix = readMatrix(scanner, nInt)
+    rs.Matrix = split[1][:len(split[1])-4]
     rs.High = nInt
     rs.Buck.Upload([]byte(rs.Matrix), BUCKET, OBJECT_PATHNAME + n)
+    return true
   }
+  return false
 }
 
-func (rs *RamseyServer) SendMatrixACK(conn *net.Conn) {
-  resp := fmt.Sprintf("%s\n%d\n%s", strconv.Itoa(ACK), rs.High, rs.Matrix)
+func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {
+  resp := fmt.Sprintf("%s\n%d\n%sEND\n", strconv.Itoa(ACK), rs.High, rs.Matrix)
   fmt.Println(resp)
   conn.Write([]byte(resp))
-}
-
-func readMatrix(scanner *bufio.Scanner, n int) string {
-  matrix := ""
-  for i := 0; i < n; i++ {
-    _ = scanner.Scan()
-    matrixLine := scanner.Text()
-    matrix += matrixLine + "\n"
-  }
-  return matrix
 }
 
 func registerGossip(gossipIP string) {

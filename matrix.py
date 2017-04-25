@@ -269,9 +269,16 @@ def send_matrix_to_server(matrix):
         for j in range(dim):
             line += str(matrix[i][j])
         line += "\n"
-    msg = "{0}\n{1}\n{2}".format(m["SUCCESS"], dim, line)
+    msg = "{0}\n{1}\n{2}END\n".format(m["SUCCESS"], dim, line)
     server_socket.send(str.encode(msg))
-    resp = recv_payload(server_socket).split("\n", 2)
+    ret_matrix = recv_matrix(server_socket)
+    if ret_matrix:
+        return ret_matrix
+    else:
+        return matrix
+
+def recv_matrix(conn):
+    resp = recv_payload(conn).split("\n", 2)
     message_type, n, new_matrix = resp[0], int(resp[1]), resp[2]
     ret_matrix = make_matrix(n)
     if message_type == m["ACK"]:
@@ -281,7 +288,7 @@ def send_matrix_to_server(matrix):
                 ret_matrix[i][j] = int(entry)
         return ret_matrix
     else:
-        return matrix
+        return False
 
 def recv_payload(conn):
     payload = ""
@@ -293,16 +300,22 @@ def recv_payload(conn):
                 return payload
             else:
                 payload += partial_load
+                if "END" in partial_load:
+                    return payload[:-3]
         except:
             return payload
 
 def query_server_for_highest():
-    server_socket
+    msg = "{0}\nEND\n".format(m["STATE_QUERY"])
+    server_socket.send(str.encode(msg))
+    ret_matrix = recv_matrix(server_socket)
+    return ret_matrix
 
 
 def startfromhighest():
-    # test_read = read_highest_from_file()
     test_read = query_server_for_highest()
+    if test_read == False:
+        test_read = read_highest_from_file()
     dim = len(test_read[0])
     counter = 0
     current_count = 100000000000000
@@ -317,10 +330,8 @@ def startfromhighest():
                 current_count = no_ten_cliques
                 print("Improved current matrix-> Clique count = " + str(current_count))
             if change_to_higher(dim):
-                #startfromhighest()
                 current_matrix = expand_matrix(read_highest_from_file())
                 print("Changing matrix to another found by other program, now working on " + str(len(current_matrix)))
-
                 current_count = 1000000000001
                 dim = len(current_matrix[0])
                 continue

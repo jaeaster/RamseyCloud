@@ -95,7 +95,7 @@ func (buck *Bucket) FindHighestMatrix(bucket string, prefix string) (string, int
   buf := new(bytes.Buffer)
   buf.ReadFrom(dataStruct.Body)
   matrix := buf.String()
-  return matrix, nInt
+  return matrix, highest
 }
 
 func checkError(err error) {
