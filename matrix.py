@@ -277,12 +277,14 @@ def send_matrix_to_server(matrix):
     else:
         return matrix
 
-def recv_matrix(conn):
-    resp = recv_payload(conn).split("\n", 2)
+def recv_matrix(conn, timeout = TIMEOUT):
+    resp = recv_payload(conn, timeout).split("\n", 2)
+    if len(resp) < 3:
+        return False
     message_type, n, new_matrix = resp[0], int(resp[1]), resp[2]
-    ret_matrix = make_matrix(n)
     if message_type == m["ACK"]:
-        new_matrix = new_matrix[:-1].split("\n")
+        ret_matrix = make_matrix(n)
+        new_matrix = new_matrix.split("\n")
         for i, line in enumerate(new_matrix):
             for j, entry in enumerate(line):
                 ret_matrix[i][j] = int(entry)
@@ -290,8 +292,9 @@ def recv_matrix(conn):
     else:
         return False
 
-def recv_payload(conn):
+def recv_payload(conn, timeout = TIMEOUT):
     payload = ""
+    conn.settimeout(timeout)
     while(1):
         try:
             partial_load = conn.recv(MAX_RECV_LINE)
@@ -301,7 +304,7 @@ def recv_payload(conn):
             else:
                 payload += partial_load
                 if "END" in partial_load:
-                    return payload[:-3]
+                    return payload[:-4]
         except:
             return payload
 
@@ -329,12 +332,21 @@ def startfromhighest():
                 current_matrix = probe_matrix
                 current_count = no_ten_cliques
                 print("Improved current matrix-> Clique count = " + str(current_count))
-            if change_to_higher(dim):
-                current_matrix = expand_matrix(read_highest_from_file())
-                print("Changing matrix to another found by other program, now working on " + str(len(current_matrix)))
+                if current_count == 0:
+                    break
+            new_matrix = recv_matrix(server_socket, 0)
+            if new_matrix:
+                current_matrix = new_matrix
+                dim = len(current_matrix[0]) + 1
                 current_count = 1000000000001
-                dim = len(current_matrix[0])
+                print("Changing matrix to another found by other program, now working on " + str(dim))
                 continue
+            # if change_to_higher(dim):
+            #     current_matrix = expand_matrix(read_highest_from_file())
+            #     print("Changing matrix to another found by other program, now working on " + str(len(current_matrix)))
+            #     current_count = 1000000000001
+            #     dim = len(current_matrix[0])
+            #     continue
             if current_count > 100:
                 print("++++++++++++++ currently number of 10-cliques -> " + str(current_count))
                 probe_matrix = bitflipper(current_matrix)
@@ -362,7 +374,6 @@ serverPort = 57339
 serverName = "0.0.0.0"
 server_socket = socket(AF_INET, SOCK_STREAM)
 server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-server_socket.settimeout(TIMEOUT)
 server_socket.connect((serverName,serverPort))
 #makeplain10()
 #brute()

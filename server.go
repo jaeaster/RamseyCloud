@@ -89,7 +89,7 @@ func (rs *RamseyServer) ProcessConn(conn net.Conn) {
     intMessageType, _ := strconv.Atoi(messageType)
     switch(intMessageType) {
     case SUCCESS:
-      update := rs.ProcessMatrixResult(body, conn.RemoteAddr())
+      update := rs.ProcessMatrixResult(body)
       if update {
         for _, client := range rs.Clients {
           rs.SendMatrixACK(client)
@@ -99,7 +99,7 @@ func (rs *RamseyServer) ProcessConn(conn net.Conn) {
       }
       break;
     case STATE_QUERY:
-      fmt.Printf("Sending STATE_QUERY Response")
+      fmt.Println("Sending STATE_QUERY Response")
       rs.SendMatrixACK(conn)
     default:
       content := scanner.Text()
@@ -109,7 +109,7 @@ func (rs *RamseyServer) ProcessConn(conn net.Conn) {
   }
 }
 
-func (rs *RamseyServer) ProcessMatrixResult(body string, ip Addr) bool {
+func (rs *RamseyServer) ProcessMatrixResult(body string) bool {
   split := strings.SplitN(body, "\n", 2)
   n := split[0]
   nInt, _ := strconv.Atoi(n)
