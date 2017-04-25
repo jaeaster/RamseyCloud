@@ -368,7 +368,7 @@ def query_server_for_highest():
 # Network functions end here
 
 serverPort = 57339
-serverName = "0.0.0.0"
+serverName = "128.111.43.14"
 server_socket = socket(AF_INET, SOCK_STREAM)
 server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 server_socket.connect((serverName,serverPort))
