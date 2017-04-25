@@ -1,7 +1,6 @@
 package s3util
 
 import(
-  "time"
   "os"
   "fmt"
   "bytes"
@@ -35,7 +34,7 @@ func NewBucket(credFile string, profile string, region string) *Bucket{
 }
 
 func (buck *Bucket) Upload(data []byte, bucket string, dstPath string) {
-  resp, err := buck.Svc.PutObjectWithContext(ctx, &s3.PutObjectInput{
+  resp, err := buck.Svc.PutObject(&s3.PutObjectInput{
     Bucket: aws.String(bucket),
     Key:    aws.String(dstPath),
     Body:   bytes.NewReader(data),
