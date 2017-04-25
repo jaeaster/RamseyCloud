@@ -262,6 +262,57 @@ def wait4better2():  # main
         current_matrix = expand_matrix(current_matrix)
         current_count = 100000000000
 
+def startfromhighest():
+    current_matrix = expand_matrix(query_server_for_highest())
+    dim = len(current_matrix[0])
+    counter = 0
+    current_count = 100000000000000
+    while True:
+        while current_count > 0:
+            probe_matrix = bitflipper(current_matrix)
+            probe_array = two_to_one_dimensions(probe_matrix)
+            no_ten_cliques = clique_count(probe_array, dim)
+            if no_ten_cliques < current_count:
+                current_matrix = probe_matrix
+                current_count = no_ten_cliques
+                print("Improved current matrix-> Clique count = " + str(current_count))
+                if current_count == 0:
+                    break
+            new_matrix = recv_matrix(server_socket, 0)
+            if new_matrix:
+                current_matrix = expand_matrix(new_matrix)
+                dim = len(current_matrix[0])
+                current_count = 1000000000001
+                print("Changing matrix to another found by other program, now working on " + str(dim))
+                continue
+            # if change_to_higher(dim):
+            #     current_matrix = expand_matrix(read_highest_from_file())
+            #     print("Changing matrix to another found by other program, now working on " + str(len(current_matrix)))
+            #     current_count = 1000000000001
+            #     dim = len(current_matrix[0])
+            #     continue
+            if current_count > 100:
+                print("++++++++++++++ currently number of 10-cliques -> " + str(current_count))
+                probe_matrix = bitflipper(current_matrix)
+                probe_matrix = bitflipper(probe_matrix)
+                probe_matrix = bitflipper(probe_matrix)
+                probe_matrix = bitflipper(probe_matrix)
+                probe_matrix = bitflipper(probe_matrix)
+                probe_array = two_to_one_dimensions(probe_matrix)
+                no_ten_cliques = clique_count(probe_array, dim)
+            if no_ten_cliques < current_count:
+                current_matrix = probe_matrix
+                current_count = no_ten_cliques
+                print("Improved current matrix-> Clique count = " + str(current_count))
+            counter += 1
+        print("Counterexample found of size " + str(dim))
+        print("Number of cycles in total = " + str(counter))
+        current_matrix = expand_matrix(send_matrix_to_server(current_matrix))
+        dim += 1
+        current_count = 100000000000
+
+# Networking Code below here
+
 def send_matrix_to_server(matrix):
     dim = len(matrix[0])
     line = ""
@@ -314,61 +365,7 @@ def query_server_for_highest():
     ret_matrix = recv_matrix(server_socket)
     return ret_matrix
 
-
-def startfromhighest():
-    test_read = query_server_for_highest()
-    if test_read == False:
-        test_read = read_highest_from_file()
-    dim = len(test_read[0])
-    counter = 0
-    current_count = 100000000000000
-    current_matrix = test_read
-    while True:
-        while current_count > 0:
-            probe_matrix = bitflipper(current_matrix)
-            probe_array = two_to_one_dimensions(probe_matrix)
-            no_ten_cliques = clique_count(probe_array, dim)
-            if no_ten_cliques < current_count:
-                current_matrix = probe_matrix
-                current_count = no_ten_cliques
-                print("Improved current matrix-> Clique count = " + str(current_count))
-                if current_count == 0:
-                    break
-            new_matrix = recv_matrix(server_socket, 0)
-            if new_matrix:
-                current_matrix = new_matrix
-                dim = len(current_matrix[0]) + 1
-                current_count = 1000000000001
-                print("Changing matrix to another found by other program, now working on " + str(dim))
-                continue
-            # if change_to_higher(dim):
-            #     current_matrix = expand_matrix(read_highest_from_file())
-            #     print("Changing matrix to another found by other program, now working on " + str(len(current_matrix)))
-            #     current_count = 1000000000001
-            #     dim = len(current_matrix[0])
-            #     continue
-            if current_count > 100:
-                print("++++++++++++++ currently number of 10-cliques -> " + str(current_count))
-                probe_matrix = bitflipper(current_matrix)
-                probe_matrix = bitflipper(probe_matrix)
-                probe_matrix = bitflipper(probe_matrix)
-                probe_matrix = bitflipper(probe_matrix)
-                probe_matrix = bitflipper(probe_matrix)
-                probe_array = two_to_one_dimensions(probe_matrix)
-                no_ten_cliques = clique_count(probe_array, dim)
-            if no_ten_cliques < current_count:
-                current_matrix = probe_matrix
-                current_count = no_ten_cliques
-                print("Improved current matrix-> Clique count = " + str(current_count))
-            counter += 1
-        print("Counterexample found of size " + str(dim))
-        print("Number of cycles in total = " + str(counter))
-        write_matrix_to_file(current_matrix)
-        current_matrix = send_matrix_to_server(current_matrix)
-        # matrix_print(current_matrix)
-        dim += 1
-        current_matrix = expand_matrix(current_matrix)
-        current_count = 100000000000
+# Network functions end here
 
 serverPort = 57339
 serverName = "0.0.0.0"
