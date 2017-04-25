@@ -3,7 +3,6 @@ package s3util
 import(
   "time"
   "os"
-  "context"
   "fmt"
   "bytes"
   "strings"
@@ -36,18 +35,6 @@ func NewBucket(credFile string, profile string, region string) *Bucket{
 }
 
 func (buck *Bucket) Upload(data []byte, bucket string, dstPath string) {
-  ctx := context.Background()
-  var cancelFn func()
-  timeout, err := time.ParseDuration(TIMEOUT)
-  if err != nil {
-    fmt.Println(err)
-    os.Exit(1)
-  }
-  if timeout > 0 {
-    ctx, cancelFn = context.WithTimeout(ctx, timeout)
-  }
-  defer cancelFn()
-
   resp, err := buck.Svc.PutObjectWithContext(ctx, &s3.PutObjectInput{
     Bucket: aws.String(bucket),
     Key:    aws.String(dstPath),
