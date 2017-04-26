@@ -1,5 +1,13 @@
 import os
 from random import randint
+
+from socket import *
+
+MAX_RECV_LINE = 2048
+TIMEOUT = 2
+NETWORK_DOWN = True
+PATH_STRING = os.getcwd() + "/counterexamples/"
+
 def make_matrix(dimension):## lager en matrise av storrelse dimension
     return [[0 for col in range(dimension)] for row in range(dimension)]
 
@@ -77,10 +85,10 @@ def bitflipper2(matrix):
 
 def filenamestring(size):
     return str("ramsey-" + str(size) + ".txt")
+
 def highest_ramsey_dir():
-    path_string = "//Users//KristofferAlvernAndersen///PycharmProjects//Ramsey//Textfiles//"
     highest = 0
-    for fil in os.listdir(path_string):
+    for fil in os.listdir(PATH_STRING):
         if fil.startswith("ramsey-"):
             a = str(fil)
             a = a[7:-4]
@@ -90,19 +98,17 @@ def highest_ramsey_dir():
 
 def change_to_higher(current):# burde kanskje
     currentfile = highest_ramsey_dir()
-    #print("current dimension is "+ str(current) + "   highest in file is" + str(int(currentfile[7:-4])))
     if int(currentfile[7:-4]) >= current:
         return True
 
 def write_matrix_to_file(matrix): # write to file
-    path_string = "//Users//KristofferAlvernAndersen///PycharmProjects//Ramsey//Textfiles//"
     size = len(matrix[0])
     filename = filenamestring(size)
-    for fil in os.listdir(path_string):
+    for fil in os.listdir(PATH_STRING):
         if fil.endswith(filename):
             return
     delimitter = "-"
-    path = path_string + filename
+    path = PATH_STRING + filename
     dim = len(matrix[0])
     line = ""
     with open(path, "w") as out:
@@ -112,6 +118,23 @@ def write_matrix_to_file(matrix): # write to file
             out.write(line.replace("\n", "")[0:-1] + "\n")
             line = ""
 
+def read_highest_from_file():
+    filename = highest_ramsey_dir()
+    dim = int(filename.replace("ramsey-","").replace(".txt",""))
+    return read_matrix_from_file(filename,dim)
+
+
+def read_matrix_from_file(filename,dimension):# les galskapen fra fil
+    path = PATH_STRING + filename
+    delimitter = "-"
+    matrix = make_matrix(dimension)
+    with open(path, "r") as read_file:
+        for i in range(dimension):
+            line = read_file.readline()
+            lineattributes = line.split(delimitter)
+            for j in range(dimension):
+                matrix[i][j] = int(lineattributes[j])
+    return matrix
 
 
 def clique_count(g,gsize):# g is an array of all
@@ -211,25 +234,6 @@ def clique_count3(g,gsize):# g is an array of all, contains stats on number of c
                                                                         if (g[i*gsize+j] == g[i*gsize+r]) and (g[i*gsize+j] == g[j*gsize+r]) and (g[i*gsize+j] == g[k*gsize+r]) and (g[i*gsize+j] == g[l*gsize+r]) and (g[i*gsize+j] == g[m*gsize+r]) and (g[i*gsize+j] == g[n*gsize+r]) and (g[i*gsize+j] == g[o*gsize+r]) and (g[i*gsize+j] == g[p*gsize+r]) and (g[i*gsize+j] == g[q*gsize+r]):
                                                                             return True
     return False
-
-def read_highest_from_file():
-    filename = highest_ramsey_dir()
-    dim = int(filename.replace("ramsey-","").replace(".txt",""))
-    return read_matrix_from_file(filename,dim)
-
-
-def read_matrix_from_file(filename,dimension):# les galskapen fra fil
-    path_string = "//Users//KristofferAlvernAndersen///PycharmProjects//Ramsey//Textfiles//"
-    path = path_string + filename
-    delimitter = "-"
-    matrix = make_matrix(dimension)
-    with open(path, "r") as read_file:
-        for i in range(dimension):
-            line = read_file.readline()
-            lineattributes = line.split(delimitter)
-            for j in range(dimension):
-                matrix[i][j] = int(lineattributes[j])
-    return matrix
 
 
 
@@ -397,40 +401,110 @@ def startfromhighest():
         current_count10 = 100000000000
         current_count9 = 100000000000
 
-def startfromhighest2():
-    test_read = read_highest_from_file()
-    dim = len(test_read[0])
+def main():
+    if NETWORK_DOWN:
+        current_matrix = read_highest_from_file()
+    else:
+        current_matrix = expand_matrix(query_server_for_highest())     
+    dim = len(current_matrix[0])
     counter = 0
-    current_matrix = test_read
-    looking = True
     while True:
-        while looking:
-            probe_matrix = re_shuffle_edge(current_matrix)
-            probe_array = two_to_one_dimensions(probe_matrix)
-            looking = clique_count3(probe_array, dim)
-            if not looking:
-                current_matrix = probe_matrix
-                continue
-            if change_to_higher(dim):
-                # startfromhighest()
-                current_matrix = expand_matrix(read_highest_from_file())
-                print(
-                "Changing matrix to another found by other program, now working on " + str(len(current_matrix)))
-                dim = len(current_matrix[0])
-                continue
+        probe_matrix = re_shuffle_edge(current_matrix)
+        probe_array = two_to_one_dimensions(probe_matrix)
+        found = not clique_count3(probe_array, dim)
+        if found:
+            current_matrix = process_new_counterexample(probe_matrix, dim, counter)
+            dim += 1
             counter += 1
-            print(str(counter))
-        print("Counterexample found of size " + str(dim))
-        print("Number of cycles in total = " + str(counter))
-        write_matrix_to_file(current_matrix)
-        dim += 1
-        current_matrix = expand_matrix(current_matrix)
-        looking = True
+            continue
+        if NETWORK_DOWN:
+            if change_to_higher(dim):
+                current_matrix = expand_matrix(read_highest_from_file())
+                dim = len(current_matrix[0])
+                print("Found better matrix from other program, now working on " + str(dim))
+                continue
+        else:
+            new_matrix = recv_matrix(server_socket, 0)
+            if new_matrix:
+                current_matrix = expand_matrix(new_matrix)
+                dim = len(current_matrix[0])
+                print("Received better matrix from server, now working on " + str(dim))
+                continue
+
+            
+        
+
+def process_new_counterexample(matrix, dim, counter):
+    print("Counterexample found of size " + str(dim))
+    print("Number of cycles in total = " + str(counter))
+    if NETWORK_DOWN:
+        write_matrix_to_file(matrix)
+    else:
+        send_matrix_to_server(matrix)
+    new_matrix = expand_matrix(matrix)
+    return new_matrix
 
 
-#makeplain10()
-#brute()
-#wait4better()
-#wait4better2()
-#startfromhighest()
-startfromhighest2()
+# Networking Code below here
+
+def send_matrix_to_server(matrix):
+    dim = len(matrix[0])
+    line = ""
+    for i in range(dim):
+        for j in range(dim):
+            line += str(matrix[i][j])
+        line += "\n"
+    msg = "{0}\n{1}\n{2}END\n".format(m["SUCCESS"], dim, line)
+    server_socket.send(str.encode(msg))
+    ret_matrix = recv_matrix(server_socket)
+    if ret_matrix:
+        return ret_matrix
+    else:
+        return matrix
+
+def recv_matrix(conn, timeout = TIMEOUT):
+    resp = recv_payload(conn, timeout).split("\n", 2)
+    if len(resp) < 3:
+        return False
+    message_type, n, new_matrix = resp[0], int(resp[1]), resp[2]
+    if message_type == m["ACK"]:
+        ret_matrix = make_matrix(n)
+        new_matrix = new_matrix.split("\n")
+        for i, line in enumerate(new_matrix):
+            for j, entry in enumerate(line):
+                ret_matrix[i][j] = int(entry)
+        return ret_matrix
+    else:
+        return False
+
+def recv_payload(conn, timeout = TIMEOUT):
+    payload = ""
+    conn.settimeout(timeout)
+    while(1):
+        try:
+            partial_load = conn.recv(MAX_RECV_LINE)
+            partial_load = bytes.decode(partial_load)
+            if not partial_load:
+                return payload
+            else:
+                payload += partial_load
+                if "END" in partial_load:
+                    return payload[:-4]
+        except:
+            return payload
+
+def query_server_for_highest():
+    msg = "{0}\nEND\n".format(m["STATE_QUERY"])
+    server_socket.send(str.encode(msg))
+    ret_matrix = recv_matrix(server_socket)
+    return ret_matrix
+
+# Network functions end here
+
+serverPort = 57339
+serverName = "128.111.43.14"
+if not NETWORK_DOWN:
+    server_socket = socket(AF_INET, SOCK_STREAM)
+    server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+    server_socket.connect((serverName,serverPort))
+main()
