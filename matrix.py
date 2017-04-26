@@ -410,8 +410,10 @@ def startfromhighest():
 def main():
     if NETWORK_DOWN:
         current_matrix = read_highest_from_file()
+        print("Read matrix from filesystem")
     else:
-        current_matrix = expand_matrix(query_server_for_highest())     
+        current_matrix = expand_matrix(query_server_for_highest())
+        print("Read matrix from server")   
     dim = len(current_matrix[0])
     counter = 0
     while True:
