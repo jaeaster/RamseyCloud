@@ -1,13 +1,15 @@
-package main
+package ramsey
 
 import(
+  "github.com/EasterAndJay/cloud/s3util"
   "net"
+  "net/http"
   "fmt"
   "bufio"
-  "os"
-  "strconv"
+  "io/ioutil"
   "strings"
-  "github.com/EasterAndJay/cloud/s3util"
+  "strconv"
+  "os"
 )
 
 const (
@@ -16,60 +18,54 @@ const (
   STATE_QUERY
 )
 
-const (
-  OBJECT_PATHNAME = "counterexamples/"
-  TIMEOUT = "5s"
-  REGION = "us-west-1"
-  AWS_PROFILE = "jonathan"
-  BUCKET = "cs293b"
-  AWS_CREDS_FILE = "/.aws/credentials"
-  HOME = "HOME"
-  PORT = ":57339"
-)
-
 type RamseyServer struct {
   Buck *s3util.Bucket
+  BuckName string
+  BuckPrefix string
   Matrix string
   High int
   Clients []net.Conn
+  IP string
+  Port string
 }
 
-func NewRamseyServer(awsCredFile string, awsProfile string, awsRegion string) *RamseyServer {
+func New(
+  awsCredFile string,
+  awsProfile string,
+  awsRegion string,
+  port string,
+  bucket string,
+  prefix string,
+) *RamseyServer {
   buck := s3util.NewBucket(awsCredFile, awsProfile, awsRegion)
-  bucket := BUCKET
-  prefix := OBJECT_PATHNAME
   matrix, high := buck.FindHighestMatrix(bucket, prefix)
+  resp, err := http.Get("http://myexternalip.com/raw")
+  checkError(err)
+  defer resp.Body.Close()
+  bodyBytes, err := ioutil.ReadAll(resp.Body)
+  checkError(err)
   rs := &RamseyServer{
     Buck: buck,
+    BuckName: bucket,
+    BuckPrefix: prefix,
     Matrix: matrix,
     High: high,
     Clients: make([]net.Conn, 0, 10),
+    IP: string(bodyBytes)[:len(bodyBytes) - 1],
+    Port: fmt.Sprintf(":%s", port),
   }
   return rs
 }
 
-func (rs *RamseyServer) run() {
-  fmt.Println("Launching server...")
-  ln, _ := net.Listen("tcp", PORT)
+func (rs *RamseyServer) Run() {
+  fmt.Printf("Launching server at %s%s\n", rs.IP, rs.Port)
+  ln, _ := net.Listen("tcp", rs.Port)
   for {
     conn, _ := ln.Accept()
     rs.Clients = append(rs.Clients, conn)
     fmt.Printf("New connection from: %s\n", conn.RemoteAddr().String())
     go rs.ProcessConn(conn)
   }
-}
-
-func RecvMsg(scanner *bufio.Scanner) (string, bool) {
-  msg := ""
-  for scanner.Scan() {
-    line := scanner.Text()
-    fmt.Println(line)
-    msg += line + "\n"
-    if line == "END" {
-      return msg, false
-    }
-  }
-  return msg, true
 }
 
 
@@ -116,7 +112,7 @@ func (rs *RamseyServer) ProcessMatrixResult(body string) bool {
   if(nInt >= rs.High) {
     rs.Matrix = split[1][:len(split[1])-4]
     rs.High = nInt
-    rs.Buck.Upload([]byte(rs.Matrix), BUCKET, OBJECT_PATHNAME + n)
+    rs.Buck.Upload([]byte(rs.Matrix), rs.BuckName, rs.BuckPrefix + n)
     return true
   }
   return false
@@ -126,6 +122,19 @@ func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {
   resp := fmt.Sprintf("%s\n%d\n%sEND\n", strconv.Itoa(ACK), rs.High, rs.Matrix)
   fmt.Println(resp)
   conn.Write([]byte(resp))
+}
+
+func RecvMsg(scanner *bufio.Scanner) (string, bool) {
+  msg := ""
+  for scanner.Scan() {
+    line := scanner.Text()
+    fmt.Println(line)
+    msg += line + "\n"
+    if line == "END" {
+      return msg, false
+    }
+  }
+  return msg, true
 }
 
 func registerGossip(gossipIP string) {
@@ -138,9 +147,4 @@ func checkError(err error) {
     fmt.Fprintf(os.Stderr, "Fatal Error: %s", err.Error())
     os.Exit(1)
   }
-}
-
-func main() {
-  rs := NewRamseyServer(os.Getenv(HOME) + AWS_CREDS_FILE, AWS_PROFILE, REGION)
-  rs.run()
 }
