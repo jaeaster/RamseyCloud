@@ -5,8 +5,14 @@ from socket import *
 
 MAX_RECV_LINE = 2048
 TIMEOUT = 2
-NETWORK_DOWN = True
+NETWORK_DOWN = False
 PATH_STRING = os.getcwd() + "/counterexamples/"
+
+m = {
+  "SUCCESS": "0",
+  "ACK": "1",
+  "STATE_QUERY": "2"  
+}
 
 def make_matrix(dimension):## lager en matrise av storrelse dimension
     return [[0 for col in range(dimension)] for row in range(dimension)]
