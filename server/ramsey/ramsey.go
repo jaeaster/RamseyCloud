@@ -10,6 +10,7 @@ import(
   "strings"
   "strconv"
   "os"
+  "log"
 )
 
 const (
@@ -17,6 +18,8 @@ const (
   ACK
   STATE_QUERY
 )
+
+const LOG_FILE = "log"
 
 type RamseyServer struct {
   Buck *s3util.Bucket
@@ -27,6 +30,11 @@ type RamseyServer struct {
   Clients []net.Conn
   IP string
   Port string
+  log *log.Logger
+}
+
+func (rs *RamseyServer) Log(message string, a ...interface{}) {
+  rs.log.Printf(message, a...)
 }
 
 func New(
@@ -37,6 +45,8 @@ func New(
   bucket string,
   prefix string,
 ) *RamseyServer {
+  file, err := os.OpenFile(LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+  checkError(err)
   buck := s3util.NewBucket(awsCredFile, awsProfile, awsRegion)
   matrix, high := buck.FindHighestMatrix(bucket, prefix)
   resp, err := http.Get("http://myexternalip.com/raw")
@@ -53,17 +63,18 @@ func New(
     Clients: make([]net.Conn, 0, 10),
     IP: string(bodyBytes)[:len(bodyBytes) - 1],
     Port: fmt.Sprintf(":%s", port),
+    log: log.New(file, "LOG: ", log.Ldate|log.Ltime|log.Lshortfile),
   }
   return rs
 }
 
 func (rs *RamseyServer) Run() {
-  fmt.Printf("Launching server at %s%s\n", rs.IP, rs.Port)
+  rs.Log("Launching server at %s%s\n", rs.IP, rs.Port)
   ln, _ := net.Listen("tcp", rs.Port)
   for {
     conn, _ := ln.Accept()
     rs.Clients = append(rs.Clients, conn)
-    fmt.Printf("New connection from: %s\n", conn.RemoteAddr().String())
+    rs.Log("New connection from: %s\n", conn.RemoteAddr().String())
     go rs.ProcessConn(conn)
   }
 }
@@ -73,15 +84,15 @@ func (rs *RamseyServer) ProcessConn(conn net.Conn) {
   defer conn.Close()
   scanner := bufio.NewScanner(conn)
   for {
-    fmt.Println("Waiting for message")
-    msg, closed := RecvMsg(scanner)
+    rs.Log("Waiting for message from %s\n", conn.RemoteAddr().String())
+    msg, closed := rs.RecvMsg(scanner)
     if(closed) {
-      fmt.Printf("Closing connection to %s\n", conn.RemoteAddr().String())
+      rs.Log("Closing connection to %s\n", conn.RemoteAddr().String())
       return
     }
     split := strings.SplitN(msg, "\n", 2)
     messageType, body := split[0], split[1]
-    fmt.Printf("Message Type Received: %s\n", messageType)
+    rs.Log("Message Type Received: %s\n", messageType)
     intMessageType, _ := strconv.Atoi(messageType)
     switch(intMessageType) {
     case SUCCESS:
@@ -95,7 +106,7 @@ func (rs *RamseyServer) ProcessConn(conn net.Conn) {
       }
       break;
     case STATE_QUERY:
-      fmt.Println("Sending STATE_QUERY Response")
+      rs.Log("Sending STATE_QUERY Response\n")
       rs.SendMatrixACK(conn)
     default:
       content := scanner.Text()
@@ -120,15 +131,15 @@ func (rs *RamseyServer) ProcessMatrixResult(body string) bool {
 
 func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {
   resp := fmt.Sprintf("%s\n%d\n%sEND\n", strconv.Itoa(ACK), rs.High, rs.Matrix)
-  fmt.Println(resp)
+  rs.Log(resp)
   conn.Write([]byte(resp))
 }
 
-func RecvMsg(scanner *bufio.Scanner) (string, bool) {
+func (rs *RamseyServer) RecvMsg(scanner *bufio.Scanner) (string, bool) {
   msg := ""
   for scanner.Scan() {
     line := scanner.Text()
-    fmt.Println(line)
+    rs.Log(line)
     msg += line + "\n"
     if line == "END" {
       return msg, false
@@ -144,7 +155,7 @@ func registerGossip(gossipIP string) {
 
 func checkError(err error) {
   if err != nil {
-    fmt.Fprintf(os.Stderr, "Fatal Error: %s", err.Error())
+    fmt.Fprintf(os.Stderr, "Fatal Error: %s\n", err.Error())
     os.Exit(1)
   }
 }
