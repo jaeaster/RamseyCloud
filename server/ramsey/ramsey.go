@@ -77,7 +77,11 @@ func (rs *RamseyServer) Run() {
   rs.Log("Launching server at %s%s\n", rs.IP, rs.Port)
   ln, _ := net.Listen("tcp", rs.Port)
   for {
-    conn, _ := ln.Accept()
+    conn, err := ln.Accept()
+    if err != nil {
+      rs.Log("Failed connection - %s\n", err.Error())
+      continue
+    }
     ipPort := conn.RemoteAddr().String()
     rs.Clients[ipPort] = conn
     rs.Log("New connection from: %s\n", ipPort)
