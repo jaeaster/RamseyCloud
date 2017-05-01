@@ -20,7 +20,10 @@ const (
   IMPROVEMENT
 )
 
-const LOG_FILE = "log"
+const (
+  LOG_FILE = "log"
+  MAX_CLIENTS = 1000
+)
 
 type RamseyServer struct {
   Buck *s3util.Bucket
@@ -34,6 +37,7 @@ type RamseyServer struct {
   IP string
   Port string
   log *log.Logger
+  clientChan chan bool
 }
 
 func (rs *RamseyServer) Log(message string, a ...interface{}) {
@@ -69,6 +73,7 @@ func New(
     IP: string(bodyBytes)[:len(bodyBytes) - 1],
     Port: fmt.Sprintf(":%s", port),
     log: log.New(file, "LOG: ", log.Ldate|log.Ltime|log.Lshortfile),
+    clientChan: make(chan bool, MAX_CLIENTS),
   }
   return rs
 }
@@ -87,20 +92,27 @@ func (rs *RamseyServer) Run() {
     rs.Log("New connection from: %s\n", ipPort)
     rs.Log("Total active workers: %d\n", len(rs.Clients))
     go rs.ProcessConn(conn)
+    rs.clientChan <- true
   }
 }
 
+func (rs *RamseyServer) cleanupConn(conn net.Conn) {
+  ipPort := conn.RemoteAddr().String()
+  conn.Close()
+  rs.Log("Closing connection to %s\n", ipPort)
+  delete(rs.Clients, ipPort)
+  rs.Log("Total active workers: %d\n", len(rs.Clients))
+  <- rs.clientChan
+}
+
 func (rs *RamseyServer) ProcessConn(conn net.Conn) {
-  defer conn.Close()
+  defer rs.cleanupConn(conn)
   ipPort := conn.RemoteAddr().String()
   scanner := bufio.NewScanner(conn)
   for {
     rs.Log("Waiting for message from %s\n", ipPort)
     msg, closed := rs.RecvMsg(scanner)
     if(closed) {
-      rs.Log("Closing connection to %s\n", ipPort)
-      delete(rs.Clients, ipPort)
-      rs.Log("Total active workers: %d\n", len(rs.Clients))
       return
     }
     split := strings.SplitN(msg, "\n", 2)
