@@ -100,6 +100,7 @@ func (rs *RamseyServer) ProcessConn(conn net.Conn) {
     if(closed) {
       rs.Log("Closing connection to %s\n", ipPort)
       delete(rs.Clients, ipPort)
+      rs.Log("Total active workers: %d\n", len(rs.Clients))
       return
     }
     split := strings.SplitN(msg, "\n", 2)
