@@ -1,7 +1,6 @@
 package ramsey
 
 import(
-  "github.com/EasterAndJay/cloud/s3util"
   "net"
   "net/http"
   "fmt"
@@ -18,7 +17,8 @@ const (
   ACK
   STATE_QUERY
   IMPROVEMENT
-  REGISTER
+  REGISTER_CLIENT
+  REGISTER_RAMSEY
 )
 
 const (
@@ -39,12 +39,7 @@ func (rs *RamseyServer) Log(message string, a ...interface{}) {
 }
 
 func New(
-  awsCredFile string,
-  awsProfile string,
-  awsRegion string,
-  port string,
-  bucket string,
-  prefix string,
+  port string
 ) *RamseyServer {
   file, err := os.OpenFile(LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
   checkError(err)
@@ -54,9 +49,6 @@ func New(
   bodyBytes, err := ioutil.ReadAll(resp.Body)
   checkError(err)
   rs := &RamseyServer{
-    Buck: buck,
-    BuckName: bucket,
-    BuckPrefix: prefix,
     Matrix: matrix,
     MatrixIsCounterExample: true,
     High: high,

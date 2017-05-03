@@ -2,13 +2,28 @@ package gossip
 
 import (
   "net"
-  
+  "net/http"
+  "fmt"
+  "bufio"
+  "io/ioutil"
+  "strings"
+  "strconv"
+  "os"
+  "log"
+  "github.com/EasterAndJay/cloud/s3util"
 )
 
 const (
   LOG_FILE = "gossip_log"
   MAX_CLIENTS = 1000
 )
+
+// type Server interface {
+//   ProcessImprovedExample(string)
+//   ProcessCounterExample(string)
+//   SendMatrixACK(net.Conn)
+
+// }
 
 type GossipServer struct {
   Servers map[string]net.Conn
@@ -25,7 +40,13 @@ type GossipServer struct {
   LowestCliqueCount int
 }
 
-func New(port string, bucket string, prefix string) *GossipServer {
+func New(
+ awsCredFile string,
+ awsProfile string,
+ awsRegion string,
+ port string,
+ bucket string,
+ prefix string) *GossipServer {
   file, err := os.OpenFile(LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
   checkError(err)
   resp, err := http.Get("http://myexternalip.com/raw")
@@ -104,7 +125,9 @@ func (gs *GossipServer) ProcessConn(conn net.Conn) {
       } else {
         gs.SendMatrixACK(conn)
       }
-    case REGISTER:
+    case REGISTER_CLIENT:
+      gs.SendServerList(conn)
+    case REGISTER_RAMSEY:
       gs.RegisterRamsey(conn)
       gs.SendMatrixACK(conn)
     default:
@@ -114,39 +137,56 @@ func (gs *GossipServer) ProcessConn(conn net.Conn) {
   }
 }
 
+func (gs *GossipServer) SendServerList(conn net.Conn) {
+  resp := fmt.Sprintf("%s\n%d\n%sEND\n", strconv.Itoa(ACK), strings.Join(gs.ServerList, "\n"))
+  conn.Write([]byte(resp))
+}
+
 func (gs *GossipServer) RegisterRamsey(conn net.Conn) {
   ipPort := conn.RemoteAddr().String()
   gs.Servers[ipPort] = conn
   gs.ServerList = append(gs.ServerList, ipPort)
 }
 
+func (gs *GossipServer) GossipImprovedConsensus(n int, cliques int, matrix string) {
+  return true
+}
+
+func (gs *GossipServer) GossipSuccessConsensus(n int, cliques int, matrix string) {
+  return true
+}
+
 func (gs *GossipServer) ProcessImprovedExample(body string) bool {
   split := strings.SplitN(body, "\n", 3)
   numCliques, _ := strconv.Atoi(split[0])
-  n := split[1]
+  n, matrix := split[1], split[2][:len(split[1])-4]
   nInt, _ := strconv.Atoi(n)
   if(nInt > gs.High && numCliques < gs.LowestCliqueCount) {
-    gs.Matrix = split[2][:len(split[1])-4]
-    gs.MatrixIsCounterExample = false
-    gs.LowestCliqueCount = numCliques
-    gs.Log("Found better matrix with clique count: %d\n", numCliques)
-    return true
+    if(gs.GossipImprovedConsensus(nInt, numCliques, matrix)) {
+      gs.Matrix = matrix
+      gs.MatrixIsCounterExample = false
+      gs.LowestCliqueCount = numCliques
+      gs.Log("Found better matrix with clique count: %d\n", numCliques)
+      return true
+    }
   }
   return false
 }
 
 func (gs *GossipServer) ProcessCounterExample(body string) bool {
   split := strings.SplitN(body, "\n", 2)
-  n := split[0]
+  n, matrix := split[0], split[1][:len(split[1])-4]
   nInt, _ := strconv.Atoi(n)
   if(nInt >= gs.High) {
-    gs.Matrix = split[1][:len(split[1])-4]
-    gs.MatrixIsCounterExample = true
-    gs.High = nInt
-    gs.Log("Found new Counter example!\n")
-    gs.Log(gs.Matrix)
-    gs.Buck.Upload([]byte(gs.Matrix), gs.BuckName, gs.BuckPrefix + n)
-    return true
+    if(gs.GossipSuccessConsensus(nInt, numCliques, matrix)) {
+      gs.Matrix = matrix
+      gs.MatrixIsCounterExample = true
+      gs.High = nInt
+      gs.Log("Found new Counter example!\n")
+      gs.Log(gs.Matrix)
+      gs.Buck.Upload([]byte(gs.Matrix), gs.BuckName, gs.BuckPrefix + n)
+      return true
+    }
   }
   return false
 }
