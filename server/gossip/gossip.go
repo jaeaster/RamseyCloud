@@ -9,4 +9,9 @@ type GossipServer struct {
   Servers []net.Conn
   IP string
   Port string
+  log *log.Logger
+}
+
+func New() *GossipServer {
+
 }

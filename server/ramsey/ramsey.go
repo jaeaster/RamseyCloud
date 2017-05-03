@@ -129,7 +129,6 @@ func (rs *RamseyServer) ProcessConn(conn net.Conn) {
       } else {
         rs.SendMatrixACK(conn)
       }
-      break;
     case STATE_QUERY:
       rs.Log("Sending STATE_QUERY Response\n")
       rs.SendMatrixACK(conn)
@@ -142,11 +141,10 @@ func (rs *RamseyServer) ProcessConn(conn net.Conn) {
       } else {
         rs.SendMatrixACK(conn)
       }
-      break;
     default:
+      fmt.Println("Seriosuly...this bug??")
       content := scanner.Text()
       conn.Write([]byte("Content received: " + content + "\n"))
-      break;
     }
   }
 }
