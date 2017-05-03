@@ -18,21 +18,15 @@ const (
   ACK
   STATE_QUERY
   IMPROVEMENT
+  REGISTER
 )
 
 const (
-  LOG_FILE = "log"
+  LOG_FILE = "ramsey_log"
   MAX_CLIENTS = 1000
 )
 
 type RamseyServer struct {
-  Buck *s3util.Bucket
-  BuckName string
-  BuckPrefix string
-  Matrix string
-  MatrixIsCounterExample bool
-  High int
-  LowestCliqueCount int
   Clients map[string]net.Conn
   IP string
   Port string
@@ -54,8 +48,6 @@ func New(
 ) *RamseyServer {
   file, err := os.OpenFile(LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
   checkError(err)
-  buck := s3util.NewBucket(awsCredFile, awsProfile, awsRegion)
-  matrix, high := buck.FindHighestMatrix(bucket, prefix)
   resp, err := http.Get("http://myexternalip.com/raw")
   checkError(err)
   defer resp.Body.Close()
@@ -111,7 +103,7 @@ func (rs *RamseyServer) ProcessConn(conn net.Conn) {
   scanner := bufio.NewScanner(conn)
   for {
     rs.Log("Waiting for message from %s\n", ipPort)
-    msg, closed := rs.RecvMsg(scanner)
+    msg, closed := RecvMsg(scanner)
     if(closed) {
       return
     }
@@ -141,8 +133,9 @@ func (rs *RamseyServer) ProcessConn(conn net.Conn) {
       } else {
         rs.SendMatrixACK(conn)
       }
+    case ACK:
+      break
     default:
-      fmt.Println("Seriosuly...this bug??")
       content := scanner.Text()
       conn.Write([]byte("Content received: " + content + "\n"))
     }
@@ -191,7 +184,7 @@ func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {
   conn.Write([]byte(resp))
 }
 
-func (rs *RamseyServer) RecvMsg(scanner *bufio.Scanner) (string, bool) {
+func RecvMsg(scanner *bufio.Scanner) (string, bool) {
   msg := ""
   for scanner.Scan() {
     line := scanner.Text()

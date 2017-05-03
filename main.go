@@ -14,7 +14,8 @@ const (
   BUCKET = "cs293b"
   AWS_CREDS_FILE = "/.aws/credentials"
   HOME = "HOME"
-  PORT = "57339"
+  RAMSEY_PORT = "57339"
+  GOSSIP_PORT = "33957"
 )
 
 func main() {
