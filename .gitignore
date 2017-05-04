@@ -27,3 +27,5 @@ _testmain.go
 *.prof
 
 main
+ramsey_main
+gossip_main
