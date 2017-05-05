@@ -77,7 +77,7 @@ linux26.engr.ucsb.edu \
 linux27.engr.ucsb.edu \
 linux28.engr.ucsb.edu"
 
-PYTHON="/cs/student/jdogg5566/go/src/github.com/EasterAndJay/cloud/matrix.py"
+PYTHON="/cs/student/jdogg5566/go/src/github.com/EasterAndJay/cloud/the_matrix_evolution.py"
 
 START="nohup ${PYTHON} > /dev/null 2>&1 &"
 
