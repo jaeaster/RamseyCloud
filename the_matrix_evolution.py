@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 from random import randint
 from socket import *
