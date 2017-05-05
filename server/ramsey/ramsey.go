@@ -163,6 +163,7 @@ func (rs *RamseyServer) RegisterWithGossip(gossipIP string) {
   if closed {
     fmt.Println("Gossip down!")
   }
+
   split := strings.SplitN(resp, "\n", 3)
   rs.high, err = strconv.Atoi(split[1])
   server.CheckError(err)
