@@ -19,7 +19,7 @@ m = {
 
 MAX_RECV_LINE = 2048
 TIMEOUT = 2
-NETWORK_DOWN = True
+NETWORK_DOWN = False
 PATH_STRING_SOLUTION = os.getcwd()+'/textfiles/'
 PATH_STRING_IMPROVEMENTS = os.getcwd() + '/improvements/'
 
