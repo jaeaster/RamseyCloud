@@ -1,66 +1,38 @@
-#!/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
+from FileManager import FileManager
+from MatrixIterator import MatrixIterator
+from MatrixManager import MatrixManager
+from Static import Static
+class Validator:
 
-import sys
+  def __init__(self):
+    self.file_manager = FileManager()
+    self.matrix_iterator = MatrixIterator()
+    self.matrix_manager = MatrixManager()
+    self.static = Static()
 
-def make_matrix(dimension):  ## Creates and returns a matrix with zeroes of size "dimension"
-    return [[0 for col in range(dimension)] for row in range(dimension)]
 
-def read_matrix_from_file(filename, dimension):  #Reads a matrix from file
-    path = filename
-    matrix = make_matrix(dimension)
-    lineattributes = [0] * dimension
-    with open(path, "r") as read_file:
-        for i in range(dimension):
-            line = read_file.readline().replace("\n", "")
-            for j in range(len(line)):
-                lineattributes[j] = line[j]
-            for j in range(dimension):
-                matrix[i][j] = int(lineattributes[j])
-    return matrix
+  def validate(self, start, stopp):                                                                
+    for i in range(start, stopp + 1):
+      matrix = self.file_manager.read_matrix_from_file(self.static.PATH_STRING_SOLUTION ,self.file_manager.generate_filename_string(i), i)                                                        
+      matrise = self.matrix_manager.matrix_to_array(matrix)                
+      print(self.file_manager.generate_filename_string(i) + "   " + str(i))                                            
+      self.check_diagonal(matrix)
 
-def matrix_to_array(matrix):#Converts a matrix to a one dimensional array
-    dim = len(matrix[0])
-    out_array = [0] * (dim ** 2)
-    for i in range(dim):
-        for j in range(dim):
-            out_array[i * dim + j] = matrix[i][j]
-    return out_array
+      counter_ex,count  = self.matrix_iterator.is_counter_example(matrise, i)                                    
+      if counter_ex is False:                                                              
+        print(" Matrix " + str(i) + " is not a counter example")                          
+        print("count "+ str(count))                                                      
+      else:                                                                                
+        #print("count "+ str(count))                                                      
+        print(str(i) + "  OK")
+        print "\n"
 
-def is_counter_example(g, gsize):  # returns True if contains 10-Clique, along with the current number of 5 cliques
-    sgsize = 10
-    count = 0
-    for i in range(gsize-sgsize+1):
-        for j in range(i+1,gsize-sgsize+2):
-            for k in range(j+1,gsize-sgsize+3):
-                if(g[i*gsize+j] == g[i*gsize+k]) and (g[i*gsize+j] == g[j*gsize+k]):
-                    for l in range(k+1,gsize-sgsize+4):
-                        if (g[i * gsize + j] == g[i * gsize + l]) and (g[i * gsize + j] == g[j * gsize + l]) and (g[i * gsize + j] == g[k * gsize + l]):
-                            for m in range(l+1,gsize-sgsize+5):
-                                if (g[i * gsize + j] == g[i * gsize + m]) and (g[i * gsize + j] == g[j * gsize + m]) and (g[i * gsize + j] == g[k * gsize + m]) and (g[i * gsize + j] == g[l * gsize + m]):
-                                    count += 1
-                                    for n in range(m+1,gsize-sgsize+6):
-                                        if(g[i * gsize + j] == g[i * gsize + n]) and (g[i * gsize + j] == g[j * gsize + n]) and (g[i * gsize + j] == g[k * gsize + n]) and (g[i * gsize + j] == g[l * gsize + n]) and (g[i * gsize + j] == g[m * gsize + n]):
-                                            for o in range(n+1,gsize-sgsize+7):
-                                                if (g[i*gsize+j] == g[i*gsize+o]) and (g[i*gsize+j] == g[j*gsize+o]) and (g[i*gsize+j] == g[k*gsize+o]) and (g[i*gsize+j] == g[l*gsize+o]) and (g[i*gsize+j] == g[m*gsize+o]) and (g[i*gsize+j] == g[n*gsize+o]):
-                                                    for p in range(o+1,gsize-sgsize+8):
-                                                        if(g[i * gsize + j] == g[i * gsize + p]) and (g[i * gsize + j] == g[j * gsize + p]) and (g[i * gsize + j] == g[k * gsize + p]) and (g[i * gsize + j] == g[l * gsize + p]) and (g[i * gsize + j] == g[m * gsize + p]) and (g[i * gsize + j] == g[n * gsize + p]) and (g[i * gsize + j] == g[o * gsize + p]):
-                                                            for q in range(p+1,gsize-sgsize+9):
-                                                                if (g[i*gsize+j] == g[i*gsize+q]) and (g[i*gsize+j] == g[j*gsize+q]) and (g[i*gsize+j] == g[k*gsize+q]) and (g[i*gsize+j] == g[l*gsize+q]) and (g[i*gsize+j] == g[m*gsize+q]) and (g[i*gsize+j] == g[n*gsize+q]) and (g[i*gsize+j] == g[o*gsize+q]) and (g[i*gsize+j] == g[p*gsize+q]):
-                                                                    for r in range(q+1,gsize-sgsize+10):
-                                                                        if (g[i*gsize+j] == g[i*gsize+r]) and (g[i*gsize+j] == g[j*gsize+r]) and (g[i*gsize+j] == g[k*gsize+r]) and (g[i*gsize+j] == g[l*gsize+r]) and (g[i*gsize+j] == g[m*gsize+r]) and (g[i*gsize+j] == g[n*gsize+r]) and (g[i*gsize+j] == g[o*gsize+r]) and (g[i*gsize+j] == g[p*gsize+r]) and (g[i*gsize+j] == g[q*gsize+r]):
-                                                                            return False,count
-    return True,count
+  def check_diagonal(self, matrix):
+    counter = 0
+    for i in range(len(matrix)):
+      if matrix[counter][counter] == 1:
+        print "There is a 1 on the diagonal"
+      counter +=1     
 
-def main():
-  filename = sys.argv[1]
-  dimension = int(sys.argv[2])
-  matrix = read_matrix_from_file(filename, dimension)
-  array = matrix_to_array(matrix)
-  valid, counter = is_counter_example(array, dimension)
-  if(valid):
-    print("IS VALID with %d 5-cliques!!\n", counter)
-  else:
-    print("NOT VALID with %d 5-cliques!!\n", counter)
 
-if __name__ == "__main__":
-    main()
+
