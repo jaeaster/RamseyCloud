@@ -114,6 +114,7 @@ class Main:
 
 	def main_validate(self, start, stop):
 		self.validator.validate(start,stop)
+
 def run():
 	main = Main()
 	main.main_smart_reduction()
@@ -122,7 +123,9 @@ def run():
 	#main.main_k_greedy()
 	#main.main_validate(40,80)
 
-run()
+if __name__ == '__main__':
+	run()
+
 
 
 
