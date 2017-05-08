@@ -8,8 +8,8 @@ class Static:
 		self.MAX_RECV_LINE = 2048
 		self.TIMEOUT = 2
 		self.NETWORK_DOWN = True
-		self.PATH_STRING_SOLUTION = os.getcwd()+'/textfiles/'
-		self.PATH_STRING_IMPROVEMENTS = os.getcwd() + '/improvements/'
+		self.PATH_STRING_SOLUTION = os.getcwd()+'/../textfiles/'
+		self.PATH_STRING_IMPROVEMENTS = os.getcwd() + '/../improvements/'
 		self.MAILING_LIST = ['oliver.damsgaard@gmail.com', 'kristoffer.alvern@hotmail.com', 'jonathaneasterman@gmail.com']
 
 		self.THRESHOLD_1 = 5
@@ -25,6 +25,6 @@ class Static:
 		self.WIDE_PERCENTAGE_THRESHOLD = 0.15
 		self.TIGHT_PERCENTAGE_THRESHOLD = 0.1
 		
-		self.STATISTICS_FILENAME = "clique_distribution.txt"
+		self.STATISTICS_FILENAME = "../clique_distribution.txt"
 		self.HASHTAGS = "########################"
 		self.IMPROVEMENT = "IMPROVEMENT"
