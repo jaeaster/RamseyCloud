@@ -11,11 +11,11 @@ import operator
 
 class SmartAgent:
 
-	def __init__(self):
+	def __init__(self, network_manager):
 		self.static = Static()
 		self.file_manager = FileManager()
 		self.matrix_manager = MatrixManager()
-		self.network_manager = NetworkManager()
+		self.network_manager = network_manager
 		self.matrix_iterator = MatrixIterator()
 		self.visualizer = Visualizer()
 

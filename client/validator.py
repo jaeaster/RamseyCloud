@@ -28,11 +28,9 @@ class Validator:
         print "\n"
 
   def check_diagonal(self, matrix):
-    counter = 0
-    for i in range(len(matrix)):
-      if matrix[counter][counter] == 1:
-        print "There is a 1 on the diagonal"
-      counter +=1     
+    for i in range(len(matrix[0])):
+      if matrix[i][i] == 1:
+        print "There is a 1 on the diagonal"     
 
 
 

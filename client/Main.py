@@ -10,9 +10,9 @@ from Validator import Validator
 
 class Main:
 	def __init__(self):
-		self.greedy_agent = GreedyAgent()
-		self.smart_agent = SmartAgent()
 		self.network_manager = NetworkManager()
+		self.greedy_agent = GreedyAgent(self.network_manager)
+		self.smart_agent = SmartAgent(self.network_manager)
 		self.visualizer = Visualizer()
 		self.matrix_manager = MatrixManager()
 		self.smtp_client = SMTPClient()
