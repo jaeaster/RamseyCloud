@@ -73,15 +73,14 @@ class NetworkManager:
     while (1):
       try:
         partial_load = self.server_socket.recv(self.static.MAX_RECV_LINE)
-        print(partial_load)
         if not partial_load:
             return payload
         else:
             payload += partial_load
             if "END" in partial_load:
+                print(payload[:-4])
                 return payload[:-4]
       except Exception as e:
-        print(e)
         return payload
 
   def query_server_for_highest(self):
