@@ -17,9 +17,8 @@ class NetworkManager:
       "STATE_QUERY": "2",
       "IMPROVEMENT": "3"
     }
-    if not self.static.NETWORK_DOWN:
+    if not   self.static.NETWORK_DOWN:
       self.server_socket = socket(AF_INET, SOCK_STREAM)
-      print("opening socket")
       self.server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
       self.server_socket.connect((self.server_name, self.server_port))
     self.file_manager = FileManager()
@@ -62,6 +61,8 @@ class NetworkManager:
           new_matrix = new_matrix.split("\n")
           for i, line in enumerate(new_matrix):
               for j, entry in enumerate(line):
+                  if entry == 'E':
+                    return ret_matrix
                   ret_matrix[i][j] = int(entry)
           return ret_matrix
       else:
