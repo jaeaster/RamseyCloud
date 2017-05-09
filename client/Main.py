@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 from GreedyAgent import GreedyAgent
 from SmartAgent import SmartAgent
