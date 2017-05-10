@@ -1,10 +1,29 @@
 
 from Static import Static
+import sys
 
 class Visualizer:
 
 	def __init__(self):
 		self.static = Static()
+
+	def print_clique_counts(self, clique_type_list, clique_type_counts):
+		print "\nCLique Counts"
+		for i in range(len(clique_type_list)):
+			print "%s: %d\n" %(clique_type_list[i], clique_type_counts[i])
+
+	def print_cover_and_dirty_set(self, cover_set, dirty_set):
+		print "\nCover set: "
+		print cover_set
+		print "\nDirty:"
+		print dirty_set
+		print "\n"
+
+
+	def print_status_bar(self, status):
+		pass
+
+
 
 	def print_matrix(self,matrix):  # Prints the matrix, not feasible for sizes bigger than ish 20
 	    delimitter = " | "
@@ -47,7 +66,7 @@ class Visualizer:
 			print elem
 			print "\n"
 
-	def print_clique_counts(self, blue_clique_count, red_clique_count):
+	def print_color_clique_counts(self, blue_clique_count, red_clique_count):
 		print "BLUE COUNT: %d" %blue_clique_count
 		print "RED COUNT: %d" %red_clique_count
 		print '\n'

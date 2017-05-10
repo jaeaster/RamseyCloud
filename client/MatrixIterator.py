@@ -1,8 +1,9 @@
+
+from Visualizer import Visualizer
 class MatrixIterator:
-
-
 	def __init__(self):
-		pass
+		self.visualizer = Visualizer()
+		
 
 	def clique_counter(self, g, gsize):
 	    sgsize = 10
@@ -15,6 +16,7 @@ class MatrixIterator:
 	    sgsize = 10
 	    nine_clique_double_array = []
 	    ten_clique_double_array = []
+	    print "ITERATING MATRIX"
 	    for i in range(gsize-sgsize+1):
 	        for j in range(i+1,gsize-sgsize+2):
 	            for k in range(j+1,gsize-sgsize+3):
@@ -37,12 +39,13 @@ class MatrixIterator:
 	                                                                if (g[i*gsize+j] == g[i*gsize+q]) and (g[i*gsize+j] == g[j*gsize+q]) and (g[i*gsize+j] == g[k*gsize+q]) and (g[i*gsize+j] == g[l*gsize+q]) and (g[i*gsize+j] == g[m*gsize+q]) and (g[i*gsize+j] == g[n*gsize+q]) and (g[i*gsize+j] == g[o*gsize+q]) and (g[i*gsize+j] == g[p*gsize+q]):
 	                                                                    count9 += 1
 	                                                                    temp_color = g[i*gsize+j]
+	                                                                    nine_clique_double_array.append([temp_color,i,j,k,l,m,n,o,p,q])
 	                                                                    for r in range(q+1,gsize-sgsize+10):
 	                                                                        if (g[i*gsize+j] == g[i*gsize+r]) and (g[i*gsize+j] == g[j*gsize+r]) and (g[i*gsize+j] == g[k*gsize+r]) and (g[i*gsize+j] == g[l*gsize+r]) and (g[i*gsize+j] == g[m*gsize+r]) and (g[i*gsize+j] == g[n*gsize+r]) and (g[i*gsize+j] == g[o*gsize+r]) and (g[i*gsize+j] == g[p*gsize+r]) and (g[i*gsize+j] == g[q*gsize+r]):
 	                                                                            count10 += 1
 	                                                                            color = g[i * gsize + j]
 	                                                                            ten_clique_double_array.append([color,i,j,k,l,m,n,o,p,q,r]) 
-	    return count5, count6, count7, count8, count9, count10, ten_clique_double_array
+	    return count5, count6, count7, count8, count9, count10, nine_clique_double_array, ten_clique_double_array
 
 	def is_counter_example(self, g, gsize):  # returns True if contains 10-Clique, along with the current number of 5 cliques                                                                                                                                                                                                                                                                                             
 		sgsize = 10                                                                                                                                                                                                                                                                                                                                                                                                 

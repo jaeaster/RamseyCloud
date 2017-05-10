@@ -79,7 +79,7 @@ class NetworkManager:
         else:
             payload += partial_load
             if "END" in partial_load:
-                print(payload[:-4])
+                #print(payload[:-4])
                 return payload[:-4]
       except Exception as e:
         return payload

@@ -9,7 +9,7 @@ from random import randint
 import collections
 import operator
 
-class SmartAgent:
+class NineCliqueAgent:
 
 	def __init__(self, network_manager):
 		self.static = Static()
@@ -19,11 +19,8 @@ class SmartAgent:
 		self.matrix_iterator = MatrixIterator()
 		self.visualizer = Visualizer()
 
-#################################
-#      Reduction Algorithms     # 
-#################################
 
-	def smart_reduction(self, matrix,cover_set_log):
+	def reduce(self, matrix,cover_set_log):
 		print "SMART REDUCTION\n"
 		c5,c6,c7,c8,c9,c10, nine_clique_double_array,ten_clique_double_array = self.matrix_iterator.clique_counter(self.matrix_manager.matrix_to_array(matrix), len(matrix[0]))
 		self.visualizer.print_double_array(ten_clique_double_array)
@@ -33,66 +30,25 @@ class SmartAgent:
 		else:
 			flipped_matrix = matrix
 			blue_clique_count, red_clique_count = self.count_number_of_cliques(ten_clique_double_array)
-			all_cover_sets, backup_sets = self.find_multiple_cover_sets(ten_clique_double_array)
-			self.visualizer.print_clique_counts(blue_clique_count, red_clique_count)
-			print "C10: %d" %c10
-			print "C9: %d" %c9
-			#smart_cover_set = all_cover_sets[0]
-			#smart_cover_set = self.handle_cover_set_loop(smart_cover_set, all_cover_sets, cover_set_log, backup_sets)
+			self.visualizer.print_color_clique_counts(blue_clique_count, red_clique_count)
+			self.visualizer.print_clique_counts(self.static.CLIQUE_TYPE_LIST, [c9,c10])
 			all_ten_clique_tuples, color_map = self.generate_ten_clique_tuples(ten_clique_double_array)
-			smart_cover_set, dirty_cover_set = self.generate_coverset_based_on_nine_cliques(nine_clique_double_array, all_ten_clique_tuples,color_map)
-			print "\nCover set: "
-			print smart_cover_set
-			print "\nDirty:"
-			print dirty_cover_set
-			print "\n"
-			#lipped_matrix = self.flip_edges_from_smart_cover_set(matrix, smart_cover_set)
-			flipped_matrix = self.flip_edges_from_nine_clique_cover_set(matrix, smart_cover_set, dirty_cover_set)
-			return flipped_matrix, False, blue_clique_count, red_clique_count,smart_cover_set,backup_sets
+			cover_set, dirty_cover_set = self.generate_coverset_based_on_nine_cliques(nine_clique_double_array, all_ten_clique_tuples,color_map)
+			self.visualizer.print_cover_and_dirty_set(cover_set, dirty_cover_set)
+			flipped_matrix = self.flip_edges_from_nine_clique_cover_set(matrix, cover_set, dirty_cover_set)
+			return flipped_matrix, False, blue_clique_count, red_clique_count,cover_set, dirty_cover_set
 
 ####################################
-#   Complements Smart Reduction    # 
+#        Complements reduce()      # 
 ####################################
-	def find_multiple_cover_sets(self,double_array):  # fiks slik at valg av tuppel blant de med alternativer er random
-		number_of_cliques = len(double_array)  # number of cliques
-		clique_set_length = len(double_array[0])
-		setlist = []
-		backup_sets = []*number_of_cliques
-		for i in range(number_of_cliques):
-			clique_tuple_set = []
-			for j in range(1, clique_set_length+1):
-				for k in range(j + 1, clique_set_length):
-					a = double_array[i][j]
-					b = double_array[i][k]
-					d = [a,b]
-					if (d[0:2] not in clique_tuple_set):
-						clique_tuple_set.append(d[0:2])
-					for l in range(number_of_cliques):  # if both nodes are in the clique, that edge is a part of that clique
-						if (a in double_array[l][1:]) and (b in double_array[l][1:]):  # if a and b are nodes i clique l -> then a,b is an edge i clique l
-							d.append(l)
-					setlist.append(d)  # format ->  nodeA,nodeB,C1,C2..
-			backup_sets.append(clique_tuple_set)
-		setlist_sorted = sorted(setlist, key=len,reverse=True)  # sorted list of each edge and its corresponding 10-clique memberships
-		coverset_tuples = []
-		coverset_cliques = []
-		coversets = []
-		add_to_cover = False
-		for tu in range(len(setlist_sorted)):  # for each edge that is in a 10-clique
-			for elem in setlist_sorted[tu][2:]:  # for each of the cliques this edge is a member of
-				if elem not in coverset_cliques:  # if this clique is not represented in the coverset, then add this edge to coverset
-					add_to_cover = True
-					coverset_cliques.append(elem)
-			if add_to_cover:
-				coverset_tuples.append(setlist_sorted[tu][:2])
-			add_to_cover = False
-			if len(coverset_cliques) == number_of_cliques:
-				if coverset_tuples not in coversets:
-					coversets.append(coverset_tuples)
-					coverset_tuples = []
-					coverset_cliques = []
-					continue
-		return coversets,backup_sets
-
+	def count_number_of_cliques(self,double_array):
+		blue_count = 0
+		red_count = 0
+		for elem in double_array:
+			if elem[0] == 0:
+				blue_count += 1
+			else: red_count += 1
+		return blue_count, red_count
 
 	def generate_ten_clique_tuples(self, double_array):
 		number_of_cliques = len(double_array)  # number of cliques
@@ -112,6 +68,7 @@ class SmartAgent:
 		return backup_sets, color_map
 
 	def generate_coverset_based_on_nine_cliques(self, nine_clique_double_array, all_ten_clique_tuples, color_map):
+		print "\nGENERATING COVERSET BASED ON 9 CLIQUES"
 		blue_set_list, red_set_list = self.generate_nine_clique_set(nine_clique_double_array)
 		jump = False
 		cover_set = []
@@ -146,8 +103,12 @@ class SmartAgent:
 						dirty_cover_set.append((red_temp_tup, red_tup_count, i))
 			if len(dirty_cover_set) > 0:
 				list_of_dirty_cover_sets.append((self.find_least_damaging_tuple(dirty_cover_set),i))
+			break #TO BE REMOVED
 		return cover_set, list_of_dirty_cover_sets
-			
+
+#####################################################################
+#        Complements generate_coverset_based_on_nine_cliques()      # 
+#####################################################################
 
 	def generate_nine_clique_set(self, nine_clique_double_array):
 		blue_set_list = []
@@ -159,7 +120,6 @@ class SmartAgent:
 				red_set_list.append(set(li[1:]))
 		return blue_set_list, red_set_list
 
-
 	def count_added_ten_cliques_by_tuple(self, tup, color_set_list):
 		color_set_list_length = len(color_set_list)
 		counter = 0
@@ -170,17 +130,9 @@ class SmartAgent:
 				if self.proceed_check(tup, set_i, set_j):
 					diff = set_i.symmetric_difference(set_j)
 					if len(diff) == 2 and tup[0] in diff and tup[1] in diff:
+						print "Diff: %s" %(str(diff))
 						counter += 1
 		return tup,counter
-
-	def find_least_damaging_tuple(self, dirty_cover_set):
-		best_tup = None
-		lowest = 100
-		for double_tup in dirty_cover_set:
-			if double_tup[1]< lowest:
-				best_tup = double_tup[0]
-				lowest = double_tup[1]
-		return best_tup, lowest
 
 	def proceed_check(self,tup, set_one, set_two):
 		a = tup[0]
@@ -198,44 +150,14 @@ class SmartAgent:
 		else:
 			return False
 
-	def make_random_coverset(self, backup_sets):
-		coverset = []
-		for i in range(len(backup_sets)):
-			a = randint(0,len(backup_sets[i])-1)
-			coverset.append(backup_sets[i][a])
-		return coverset
-
-	def count_number_of_cliques(self,double_array):
-		blue_count = 0
-		red_count = 0
-		for elem in double_array:
-			if elem[0] == 0:
-				blue_count += 1
-			else: red_count += 1
-		return blue_count, red_count
-
-	def handle_cover_set_loop(self, smart_cover_set, all_cover_sets ,cover_set_log, backup_sets):
-		counter = 0
-		while smart_cover_set in cover_set_log:
-			counter +=1
-			if counter < len(all_cover_sets):
-				smart_cover_set = all_cover_sets[counter]
-			else:
-				smart_cover_set = self.make_random_coverset(backup_sets)
-				print("hit a loop, changing the coverset")
-		return smart_cover_set
-
-	def flip_edges_from_smart_cover_set(self, matrix, smart_cover_set):
-		string = "chose to flip\n "
-		flipped_matrix = matrix
-		for elem in smart_cover_set:
-			string += str(elem)
-			x = elem[0]
-			y = elem[1]
-			flipped_matrix = self.matrix_manager.flip_one_bit(flipped_matrix, x, y)
-		print string
-		print("found an appropriate new coverset")
-		return flipped_matrix
+	def find_least_damaging_tuple(self, dirty_cover_set):
+		best_tup = None
+		lowest = 100
+		for double_tup in dirty_cover_set:
+			if double_tup[1]< lowest:
+				best_tup = double_tup[0]
+				lowest = double_tup[1]
+		return best_tup, lowest
 
 	def flip_edges_from_nine_clique_cover_set(self, matrix, cover_set, dirty_cover_set):
 		flipped_matrix = matrix
@@ -245,7 +167,7 @@ class SmartAgent:
 			for elem in dirty_cover_set:
 				x = elem[0][0][0]
 				y = elem[0][0][1]
-				string += (elem[0][0])
+				string += (str(elem[0][0]))
 				string += ', cost: %d'%(elem[0][1])
 			flipped_matrix = self.matrix_manager.flip_one_bit(flipped_matrix, x, y)
 			print string
@@ -259,32 +181,18 @@ class SmartAgent:
 		print string
 		return flipped_matrix
 
-	def find_least_damaging_dirty_tuple(self, dirty_cover_set):
-		best_tup = None
-		lowest = 100
-		for elem in dirty_cover_set:
-			temp_tup = elem[0][0]
-			cost = elem[0][1]
-			if cost < lowest:
-				best_tup = temp_tup
-				lowest 
-
-
-
 
 if __name__ == '__main__':
-	n = NetworkManager()
-	sa = SmartAgent(n)
-	dc = [(((1, 4), 1), 0)]
-	#sa.flip_edges_from_nine_clique_cover_set([], dc)
-	sa.find_least_damaging_dirty_tuple(dc)
-	for elem in dc:
-		x = elem[0][0][0]
-		y = elem[0][0][1]
-		print "%d - %d" %(x,y)
+	n_m = NetworkManager()
+	agent = NineCliqueAgent(n_m)
+	t = [[0,1,2,3,4,5,6,7,8,9,10]]
+	n = [[0,2,3,4,5,6,7,8,9,10],[0,1,3,4,5,6,7,8,9,10]]
 
-
-
+	b_n, r_n  = agent.generate_nine_clique_set(n)
+	"\nBlue nine clique set"
+	print b_n
+	"\nRed nine clique set"
+	print r_n
 
 
 

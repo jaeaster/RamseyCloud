@@ -5,7 +5,7 @@ class Static:
 	def __init__(self):
 		self.MAX_RECV_LINE = 2048
 		self.TIMEOUT = 2
-		self.NETWORK_DOWN = False
+		self.NETWORK_DOWN = True
 		self.PATH_STRING_SOLUTION = os.getcwd()+'/../textfiles/'
 		self.PATH_STRING_IMPROVEMENTS = os.getcwd() + '/../improvements/'
 		self.MAILING_LIST = ['oliver.damsgaard@gmail.com', 'kristoffer.alvern@hotmail.com', 'jonathaneasterman@gmail.com']
@@ -26,3 +26,4 @@ class Static:
 		self.STATISTICS_FILENAME = "../clique_distribution.txt"
 		self.HASHTAGS = "########################"
 		self.IMPROVEMENT = "IMPROVEMENT"
+		self.CLIQUE_TYPE_LIST = ['C9', 'C10']
