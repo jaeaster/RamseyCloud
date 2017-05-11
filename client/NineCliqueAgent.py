@@ -23,7 +23,13 @@ class NineCliqueAgent:
 	def reduce(self, matrix,cover_set_log):
 		print "SMART REDUCTION\n"
 		c5,c6,c7,c8,c9,c10, nine_clique_double_array,ten_clique_double_array = self.matrix_iterator.clique_counter(self.matrix_manager.matrix_to_array(matrix), len(matrix[0]))
-		self.visualizer.print_double_array(ten_clique_double_array)
+		#self.visualizer.print_double_array(ten_clique_double_array)
+		print "\n"
+		print ten_clique_double_array
+		print "\n"
+		print "\n"
+		print nine_clique_double_array
+
 		if c10 ==0:
 			print "Found counter example"
 			return matrix, True, 0, 0, [], []
@@ -138,15 +144,9 @@ class NineCliqueAgent:
 		a = tup[0]
 		b = tup[1]
 		if a in set_one and b in set_two:
-			if b in set_one or a in set_two:
-				return False
-			else:
-				return True
+			return not(b in set_one or a in set_two)
 		elif b in set_one and a in set_two:
-			if a in set_one or b in set_two:
-				return False
-			else:
-				return True
+			return not(a in set_one or b in set_two)
 		else:
 			return False
 
