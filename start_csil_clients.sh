@@ -34,6 +34,7 @@ csil-30.cs.ucsb.edu \
 csil-31.cs.ucsb.edu \
 csil-32.cs.ucsb.edu \
 csil-33.cs.ucsb.edu \
+csil-35.cs.ucsb.edu \
 csil-34.cs.ucsb.edu \
 csil-36.cs.ucsb.edu \
 csil-37.cs.ucsb.edu \
@@ -64,7 +65,6 @@ linux13.engr.ucsb.edu \
 linux14.engr.ucsb.edu \
 linux15.engr.ucsb.edu \
 linux16.engr.ucsb.edu \
-linux17.engr.ucsb.edu \
 linux18.engr.ucsb.edu \
 linux19.engr.ucsb.edu \
 linux20.engr.ucsb.edu \
@@ -77,7 +77,7 @@ linux26.engr.ucsb.edu \
 linux27.engr.ucsb.edu \
 linux28.engr.ucsb.edu"
 
-PYTHON="/cs/student/jdogg5566/go/src/github.com/EasterAndJay/cloud/the_matrix_evolution.py"
+PYTHON="/cs/student/jdogg5566/go/src/github.com/EasterAndJay/cloud/client/Main.py"
 
 START="nohup ${PYTHON} > /dev/null 2>&1 &"
 

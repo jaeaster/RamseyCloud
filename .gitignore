@@ -31,3 +31,4 @@ ramsey_main
 gossip_main
 .DS*
 *.pyc
+textfiles
