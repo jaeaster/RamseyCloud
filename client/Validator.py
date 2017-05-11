@@ -1,7 +1,9 @@
+import time
 from FileManager import FileManager
 from MatrixIterator import MatrixIterator
 from MatrixManager import MatrixManager
 from Static import Static
+
 class Validator:
 
   def __init__(self):
@@ -32,7 +34,6 @@ class Validator:
       matrix = self.file_manager.read_matrix_from_file(self.static.PATH_STRING_SOLUTION ,self.file_manager.generate_filename_string(i), i)
       matrise = self.matrix_manager.matrix_to_array(matrix)
       print(self.file_manager.generate_filename_string(i) + "   " + str(i))
-      self.check_diagonal(matrix)
       if use_c:
         start = time.time()
         results  = self.matrix_iterator.clique_counter_c(matrix)
@@ -60,4 +61,8 @@ class Validator:
         print "There is a 1 on the diagonal"     
 
 
+if __name__ == '__main__':
+  validator = Validator()
+  validator.validate_test_c(200, 200, True)
+  validator.validate_test_c(200, 200)
 

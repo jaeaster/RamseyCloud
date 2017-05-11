@@ -143,21 +143,15 @@ class MatrixIterator:
 		out = result.stdout.read()
 		ten_cliques = []
 		counts = []
-		i = 0
-		j = 0
-		k = 0
 		for line in out.split("\n"):
 			if ":" not in line:
-				ten_cliques[i] = list()
-				i += 1
+				ten_cliques.append(list())
 				for char in line.split(","):
-					ten_cliques[i][j] = int(char)
-					j += 1
+					ten_cliques[-1].append(int(char))
 			else:
 				row = line[1:].split(",")
 				for char in row:
 					counts.append(int(char))
-					k += 1
 		return counts[0], counts[1], counts[2], counts[3], counts[4], counts[5], ten_cliques
 
 
