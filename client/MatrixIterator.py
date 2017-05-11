@@ -18,6 +18,7 @@ class MatrixIterator:
 	    ten_clique_double_array = []
 	    print "ITERATING MATRIX"
 	    for i in range(gsize-sgsize+1):
+	    	print "%d / %d" %(i, gsize-sgsize+1)
 	        for j in range(i+1,gsize-sgsize+2):
 	            for k in range(j+1,gsize-sgsize+3):
 	                if(g[i*gsize+j] == g[i*gsize+k]) and (g[i*gsize+j] == g[j*gsize+k]):
