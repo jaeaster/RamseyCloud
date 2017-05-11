@@ -25,7 +25,7 @@ class SmartAgent:
 
 	def smart_reduction(self, matrix,cover_set_log):
 		print "SMART REDUCTION\n"
-		c5,c6,c7,c8,c9,c10,ten_clique_double_array = self.matrix_iterator.clique_counter(self.matrix_manager.matrix_to_array(matrix), len(matrix[0]))
+		c5,c6,c7,c8,c9,c10,ten_clique_double_array = self.matrix_iterator.clique_counter(matrix)
 		#self.visualizer.print_double_array(ten_clique_double_array)
 		if c10 ==0:
 			print "Found counter example"
