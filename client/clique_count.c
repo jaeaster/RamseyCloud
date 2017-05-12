@@ -52,14 +52,14 @@ int CliqueCountAll(int *g,int gsize) {
                                       for(q=p+1;q<gsize-sgsize+9;q++){
                                         if ((g[i*gsize+j] == g[i*gsize+q]) && (g[i*gsize+j] == g[j*gsize+q]) &&(g[i*gsize+j] == g[k*gsize+q]) && (g[i*gsize+j] == g[l*gsize+q]) &&(g[i*gsize+j] == g[m*gsize+q]) &&(g[i*gsize+j] == g[n*gsize+q]) &&(g[i*gsize+j] == g[o*gsize+q]) &&(g[i*gsize+j] == g[p*gsize+q])) { 
                                           count9 += 1;
-                                          printf("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", g[i*gsize+j], i, j, k, l, m, n, o, p, q);
+                                          printf("N%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", g[i*gsize+j], i, j, k, l, m, n, o, p, q);
                                           if(sgsize <= 9) {
                                             count10++;
                                           } else {
                                             for(r=q+1;r<gsize-sgsize+10;r++){
                                               if((g[i*gsize+j] == g[i*gsize+r]) && (g[i*gsize+j] == g[j*gsize+r]) &&(g[i*gsize+j] == g[k*gsize+r]) && (g[i*gsize+j] == g[l*gsize+r]) &&(g[i*gsize+j] == g[m*gsize+r]) &&(g[i*gsize+j] == g[n*gsize+r]) &&(g[i*gsize+j] == g[o*gsize+r]) &&(g[i*gsize+j] == g[p*gsize+r]) &&(g[i*gsize+j] == g[q*gsize+r])) { 
                                                 count10++;
-                                                printf("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", g[i*gsize+j], i, j, k, l, m, n, o, p, q, r);
+                                                printf("T%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", g[i*gsize+j], i, j, k, l, m, n, o, p, q, r);
                                               }
                                             }
                                           }

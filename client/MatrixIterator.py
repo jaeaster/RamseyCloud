@@ -1,11 +1,14 @@
+from subprocess import Popen, PIPE, call
+import inspect
+from MatrixManager import MatrixManager
 
-from Visualizer import Visualizer
 class MatrixIterator:
+	
 	def __init__(self):
-		self.visualizer = Visualizer()
-		
+		self.matrix_manager = MatrixManager()
+		pass
 
-	def clique_counter(self,g):
+	def clique_counter(self, g):
 	    count5 = 0
 	    count6 = 0
 	    count7 = 0
@@ -128,5 +131,38 @@ class MatrixIterator:
 	                edgearray[i] += 1
 	    return edgearray
 
+	def is_counter_example_c(self, g, gsize):
+		path = inspect.stack()[0][1].split("MatrixIterator.py")[0]
+		count = call([path+"a.out", str(gsize),"".join(str(x) for x in g)])
+		if count == 0:
+			return True, count
+		else:
+			return False, count
+
+	def clique_counter_c(self, g):
+		gsize = len(g[0])
+		matrix_array = self.matrix_manager.matrix_to_array(g)
+		path = inspect.stack()[0][1].split("MatrixIterator.py")[0]
+		cmd = [path+"a.out", str(gsize),"".join(str(x) for x in matrix_array)]
+		print(path+"a.out")
+		result = Popen(cmd, stdout=PIPE)
+		out = result.stdout.read()
+		ten_cliques = []
+		nine_cliques = []
+		counts = []
+		for line in out.split("\n"):
+			if "N" == line[0]:
+				nine_cliques.append(list())
+				for char in line[1:].split(","):
+					nine_cliques[-1].append(int(char))
+			elif "T" == line[0]:
+					ten_cliques.append(list())
+					for char in line[1:].split(","):
+						ten_cliques[-1].append(int(char))
+			else:
+				row = line[1:].split(",")
+				for char in row:
+					counts.append(int(char))
+		return counts[0], counts[1], counts[2], counts[3], counts[4], counts[5], nine_cliques, ten_cliques
 
 
