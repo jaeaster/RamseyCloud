@@ -1,4 +1,5 @@
 from subprocess import Popen, PIPE, call
+import inspect
 from MatrixManager import MatrixManager
 
 class MatrixIterator:
@@ -128,7 +129,8 @@ class MatrixIterator:
 	    return edgearray
 
 	def is_counter_example_c(self, g, gsize):
-		count = call(["./a.out", str(gsize),"".join(str(x) for x in g)])
+		path = inspect.stack()[0][1].split("Main.py")[0]
+		count = call([path+"a.out", str(gsize),"".join(str(x) for x in g)])
 		if count == 0:
 			return True, count
 		else:
@@ -137,7 +139,8 @@ class MatrixIterator:
 	def clique_counter_c(self, g):
 		gsize = len(g[0])
 		matrix_array = self.matrix_manager.matrix_to_array(g)
-		cmd = ["./a.out", str(gsize),"".join(str(x) for x in matrix_array)]
+		path = inspect.stack()[0][1].split("Main.py")[0]
+		cmd = [path+"a.out", str(gsize),"".join(str(x) for x in matrix_array)]
 
 		result = Popen(cmd, stdout=PIPE)
 		out = result.stdout.read()
