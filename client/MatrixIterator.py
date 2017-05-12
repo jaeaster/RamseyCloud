@@ -129,7 +129,7 @@ class MatrixIterator:
 	    return edgearray
 
 	def is_counter_example_c(self, g, gsize):
-		path = inspect.stack()[0][1].split("Main.py")[0]
+		path = inspect.stack()[0][1].split("MatrixIterator.py")[0]
 		count = call([path+"a.out", str(gsize),"".join(str(x) for x in g)])
 		if count == 0:
 			return True, count
@@ -139,7 +139,7 @@ class MatrixIterator:
 	def clique_counter_c(self, g):
 		gsize = len(g[0])
 		matrix_array = self.matrix_manager.matrix_to_array(g)
-		path = inspect.stack()[0][1].split("Main.py")[0]
+		path = inspect.stack()[0][1].split("MatrixIterator.py")[0]
 		cmd = [path+"a.out", str(gsize),"".join(str(x) for x in matrix_array)]
 		print(path+"a.out")
 		result = Popen(cmd, stdout=PIPE)
