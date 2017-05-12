@@ -5,8 +5,7 @@ class MatrixIterator:
 		self.visualizer = Visualizer()
 		
 
-	def clique_counter(self, g, gsize):
-	    sgsize = 10
+	def clique_counter(self,g):
 	    count5 = 0
 	    count6 = 0
 	    count7 = 0
@@ -14,39 +13,86 @@ class MatrixIterator:
 	    count9 = 0
 	    count10 = 0
 	    sgsize = 10
-	    nine_clique_double_array = []
-	    ten_clique_double_array = []
-	    print "ITERATING MATRIX"
-	    for i in range(gsize-sgsize+1):
-	    	print "%d / %d" %(i, gsize-sgsize+1)
-	        for j in range(i+1,gsize-sgsize+2):
-	            for k in range(j+1,gsize-sgsize+3):
-	                if(g[i*gsize+j] == g[i*gsize+k]) and (g[i*gsize+j] == g[j*gsize+k]):
-	                    for l in range(k+1,gsize-sgsize+4):
-	                        if (g[i * gsize + j] == g[i * gsize + l]) and (g[i * gsize + j] == g[j * gsize + l]) and (g[i * gsize + j] == g[k * gsize + l]):
-	                            for m in range(l+1,gsize-sgsize+5):
-	                                if (g[i * gsize + j] == g[i * gsize + m]) and (g[i * gsize + j] == g[j * gsize + m]) and (g[i * gsize + j] == g[k * gsize + m]) and (g[i * gsize + j] == g[l * gsize + m]):
-	                                    count5+=1
-	                                    for n in range(m+1,gsize-sgsize+6):
-	                                        if(g[i * gsize + j] == g[i * gsize + n]) and (g[i * gsize + j] == g[j * gsize + n]) and (g[i * gsize + j] == g[k * gsize + n]) and (g[i * gsize + j] == g[l * gsize + n]) and (g[i * gsize + j] == g[m * gsize + n]):
+	    newsize = len(g)-sgsize
+
+	    ten_cliques = []
+	    nine_cliques = []
+	    print "MAMAA"
+	    for i in range(newsize + 1):
+	        for j in range(i + 1, newsize + 2):
+	            for k in range(j + 1, newsize + 3):
+	                i_to_j = g[i][j]
+	                i_to = g[i]
+	                j_to = g[j]
+	                if (i_to_j == i_to[k]) and (i_to_j == j_to[k]):
+	                    for l in range(k + 1, newsize + 4):
+	                        k_to = g[k]
+	                        if (i_to_j == i_to[l]) and (
+	                                    i_to_j == j_to[l]) and (
+	                                    i_to_j == k_to[l]):
+	                            l_to = g[l]
+	                            #print ([i, j, k, l])
+	                            for m in range(l + 1, newsize + 5):
+	                                if (i_to_j == i_to[m]) and (
+	                                            i_to_j == j_to[m]) and (
+	                                            i_to_j == k_to[m]) and (
+	                                            i_to_j == l_to[m]):
+	                                    m_to = g[m]
+	                                    count5 += 1
+	                                    #print ([i, j, k, l, m])
+	                                    for n in range(m + 1, newsize + 6):
+	                                        if (i_to_j == i_to[n]) and (
+	                                                    i_to_j == j_to[n]) and (
+	                                                    i_to_j == k_to[n]) and (
+	                                                    i_to_j == l_to[n]) and (
+	                                                    i_to_j == m_to[n]):
+	                                            n_to = g[n]
 	                                            count6 += 1
-	                                            for o in range(n+1,gsize-sgsize+7):
-	                                                if (g[i*gsize+j] == g[i*gsize+o]) and (g[i*gsize+j] == g[j*gsize+o]) and (g[i*gsize+j] == g[k*gsize+o]) and (g[i*gsize+j] == g[l*gsize+o]) and (g[i*gsize+j] == g[m*gsize+o]) and (g[i*gsize+j] == g[n*gsize+o]):
+	                                            for o in range(n + 1, newsize + 7):
+	                                                if (i_to_j == i_to[o]) and (
+	                                                            i_to_j == j_to[o]) and (
+	                                                            i_to_j == k_to[o]) and (
+	                                                            i_to_j == l_to[o]) and (
+	                                                            i_to_j == m_to[o]) and (
+	                                                            i_to_j == n_to[o]):
+	                                                    o_to = g[o]
 	                                                    count7 += 1
-	                                                    for p in range(o+1,gsize-sgsize+8):
-	                                                        if(g[i * gsize + j] == g[i * gsize + p]) and (g[i * gsize + j] == g[j * gsize + p]) and (g[i * gsize + j] == g[k * gsize + p]) and (g[i * gsize + j] == g[l * gsize + p]) and (g[i * gsize + j] == g[m * gsize + p]) and (g[i * gsize + j] == g[n * gsize + p]) and (g[i * gsize + j] == g[o * gsize + p]):
+	                                                    for p in range(o + 1, newsize + 8):
+	                                                        if (i_to_j == i_to[p]) and (
+	                                                                    i_to_j == j_to[p]) and (
+	                                                                    i_to_j == k_to[p]) and (
+	                                                                    i_to_j == l_to[p]) and (
+	                                                                    i_to_j == m_to[p]) and (
+	                                                                    i_to_j == n_to[p]) and (
+	                                                                    i_to_j == o_to[p]):
+	                                                            p_to = g[p]
 	                                                            count8 += 1
-	                                                            for q in range(p+1,gsize-sgsize+9):
-	                                                                if (g[i*gsize+j] == g[i*gsize+q]) and (g[i*gsize+j] == g[j*gsize+q]) and (g[i*gsize+j] == g[k*gsize+q]) and (g[i*gsize+j] == g[l*gsize+q]) and (g[i*gsize+j] == g[m*gsize+q]) and (g[i*gsize+j] == g[n*gsize+q]) and (g[i*gsize+j] == g[o*gsize+q]) and (g[i*gsize+j] == g[p*gsize+q]):
+	                                                            for q in range(p + 1, newsize + 9):
+	                                                                if (i_to_j == i_to[q]) and (
+	                                                                            i_to_j == j_to[q]) and (
+	                                                                            i_to_j == k_to[q]) and (
+	                                                                            i_to_j == l_to[q]) and (
+	                                                                            i_to_j == m_to[q]) and (
+	                                                                            i_to_j == n_to[q]) and (
+	                                                                            i_to_j == o_to[q]) and (
+	                                                                            i_to_j == p_to[q]):
+	                                                                    q_to = g[q]
 	                                                                    count9 += 1
-	                                                                    temp_color = g[i*gsize+j]
-	                                                                    nine_clique_double_array.append([temp_color,i,j,k,l,m,n,o,p,q])
-	                                                                    for r in range(q+1,gsize-sgsize+10):
-	                                                                        if (g[i*gsize+j] == g[i*gsize+r]) and (g[i*gsize+j] == g[j*gsize+r]) and (g[i*gsize+j] == g[k*gsize+r]) and (g[i*gsize+j] == g[l*gsize+r]) and (g[i*gsize+j] == g[m*gsize+r]) and (g[i*gsize+j] == g[n*gsize+r]) and (g[i*gsize+j] == g[o*gsize+r]) and (g[i*gsize+j] == g[p*gsize+r]) and (g[i*gsize+j] == g[q*gsize+r]):
+	                                                                    nine_cliques.append([i_to_j, i, j, k, l, m, n, o, p, q])
+	                                                                    for r in range(q + 1, newsize + 10):
+	                                                                        if (i_to_j == i_to[r]) and (
+	                                                                                    i_to_j == j_to[r]) and (
+	                                                                                    i_to_j == k_to[r]) and (
+	                                                                                    i_to_j == l_to[r]) and (
+	                                                                                    i_to_j == m_to[r]) and (
+	                                                                                    i_to_j == n_to[r]) and (
+	                                                                                    i_to_j == o_to[r]) and (
+	                                                                                    i_to_j == p_to[r]) and (
+	                                                                                    i_to_j == q_to[r]):
 	                                                                            count10 += 1
-	                                                                            color = g[i * gsize + j]
-	                                                                            ten_clique_double_array.append([color,i,j,k,l,m,n,o,p,q,r]) 
-	    return count5, count6, count7, count8, count9, count10, nine_clique_double_array, ten_clique_double_array
+	                                                                            ten_cliques.append(
+	                                                                                [i_to_j, i, j, k, l, m, n, o, p, q, r])
+	    return count5, count6, count7, count8, count9, count10, nine_cliques,ten_cliques
 
 	def is_counter_example(self, g, gsize):  # returns True if contains 10-Clique, along with the current number of 5 cliques                                                                                                                                                                                                                                                                                             
 		sgsize = 10                                                                                                                                                                                                                                                                                                                                                                                                 
