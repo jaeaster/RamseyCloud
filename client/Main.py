@@ -83,7 +83,6 @@ def run():
 	main = Main()
 	main.main_reduction()
 	#main.main_smart_expand(30)
-	#main.main_validate(40,80)
 
 if __name__ == '__main__':
 	run()
