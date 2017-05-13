@@ -25,7 +25,7 @@ class SmartAgent:
 
 	def smart_reduction(self, matrix,cover_set_log):
 		print "SMART REDUCTION\n"
-		c5,c6,c7,c8,c9,c10,ten_clique_double_array = self.matrix_iterator.clique_counter_c(matrix)
+		c5,c6,c7,c8,c9,c10,n,ten_clique_double_array = self.matrix_iterator.clique_counter_c(matrix)
 		if c10 ==0:
 			print "Found counter example"
 			return matrix, True, 0, 0, [], []
@@ -33,20 +33,15 @@ class SmartAgent:
 			flipped_matrix = matrix
 			blue_clique_count, red_clique_count = self.count_number_of_cliques(ten_clique_double_array)
 			all_cover_sets, backup_sets = self.find_multiple_cover_sets(ten_clique_double_array)
-			self.visualizer.print_clique_counts(blue_clique_count, red_clique_count)
+			#self.visualizer.print_clique_counts(blue_clique_count, red_clique_count)
 			print "C10: %d" %c10
 			print "C9: %d" %c9
-			#smart_cover_set = all_cover_sets[0]
-			#smart_cover_set = self.handle_cover_set_loop(smart_cover_set, all_cover_sets, cover_set_log, backup_sets)
-			all_ten_clique_tuples, color_map = self.generate_ten_clique_tuples(ten_clique_double_array)
-			smart_cover_set, dirty_cover_set = self.generate_coverset_based_on_nine_cliques(nine_clique_double_array, all_ten_clique_tuples,color_map)
-			print "\nCover set: "
-			print smart_cover_set
-			print "\nDirty:"
-			print dirty_cover_set
-			print "\n"
-			#lipped_matrix = self.flip_edges_from_smart_cover_set(matrix, smart_cover_set)
-			flipped_matrix = self.flip_edges_from_nine_clique_cover_set(matrix, smart_cover_set, dirty_cover_set)
+			smart_cover_set = all_cover_sets[0]
+			smart_cover_set = self.handle_cover_set_loop(smart_cover_set, all_cover_sets, cover_set_log, backup_sets)
+			#all_ten_clique_tuples, color_map = self.generate_ten_clique_tuples(ten_clique_double_array)
+			#smart_cover_set, dirty_cover_set = self.generate_coverset_based_on_nine_cliques(nine_clique_double_array, all_ten_clique_tuples,color_map)
+			flipped_matrix = self.flip_edges_from_smart_cover_set(matrix, smart_cover_set)
+			#flipped_matrix = self.flip_edges_from_nine_clique_cover_set(matrix, smart_cover_set, dirty_cover_set)
 			return flipped_matrix, False, blue_clique_count, red_clique_count,smart_cover_set,backup_sets
 
 ####################################

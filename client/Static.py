@@ -5,7 +5,7 @@ class Static:
 	def __init__(self):
 		self.MAX_RECV_LINE = 2048
 		self.TIMEOUT = 2
-		self.NETWORK_DOWN = True
+		self.NETWORK_DOWN = False
 		self.PATH_STRING_SOLUTION = os.getcwd()+'/../textfiles/'
 		self.PATH_STRING_IMPROVEMENTS = os.getcwd() + '/../improvements/'
 		self.MAILING_LIST = ['oliver.damsgaard@gmail.com', 'kristoffer.alvern@hotmail.com', 'jonathaneasterman@gmail.com']
