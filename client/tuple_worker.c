@@ -47,6 +47,7 @@ int main(int argc, char** argv) {
 
 
 int find_dirty_edges(int* tuple, int** color_set_list, int length) {
+  printf("Hellooo\n");
   int i, j, k, *set_i, *set_j, diff[18];
   int cost = 0;
   int proved_dirty = 0;
