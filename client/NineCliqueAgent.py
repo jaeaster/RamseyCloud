@@ -25,7 +25,7 @@ class NineCliqueAgent:
 	def reduce(self, matrix,cover_set_log):
 		print "Reduce\n"
 		c5,c6,c7,c8,c9,c10, nine_clique_double_array,ten_clique_double_array = self.matrix_iterator.clique_counter_c(matrix)
-		self.visualizer.print_double_array(ten_clique_double_array)
+		#self.visualizer.print_double_array(ten_clique_double_array)
 		if c10 ==0:
 			print "Found counter example"
 			return matrix, True, 0, 0, [], []

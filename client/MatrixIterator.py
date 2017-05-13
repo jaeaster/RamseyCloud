@@ -141,6 +141,7 @@ class MatrixIterator:
 			return False, count
 
 	def clique_counter_c(self, g):
+		print "iterating matrix"
 		gsize = len(g[0])
 		matrix_array = self.matrix_manager.matrix_to_array(g)
 		path = os.path.dirname(__file__)
@@ -167,6 +168,7 @@ class MatrixIterator:
 				row = line[1:].split(",")
 				for char in row:
 					counts.append(int(char))
+		print "Done iterating matrix"
 		return counts[0], counts[1], counts[2], counts[3], counts[4], counts[5], nine_cliques, ten_cliques
 
 
