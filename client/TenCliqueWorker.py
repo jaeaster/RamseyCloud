@@ -1,11 +1,7 @@
-
-# import threading.Thread
-# from multiprocessing.pool import ThreadPool
-from TupleWorker import TupleWorker
-from subprocess import Popen, PIPE, call
-import inspect
-from MatrixManager import MatrixManager
 import os
+from subprocess import Popen, PIPE, call
+from TupleWorker import TupleWorker
+from MatrixManager import MatrixManager
 
 class TenCliqueWorker():
 
@@ -65,46 +61,16 @@ class TenCliqueWorker():
 
 
 	def fetch_data_from_tuple_worker_c(self,tup_string,nine_clique_color_set_list_string, length ):
-		#path = inspect.stack()[0][1]#.split("TenCliqueWorker.py")[0]
-		path = os.getcwd()
-		print path
-		cmd = [path+"/tuple_worker.out", tup_string, nine_clique_color_set_list_string , length]
-		result = Popen(cmd,shell = True, stdout=PIPE)
+		path = os.path.dirname(__file__)
+		if not path:
+			path = "./tuple_worker"
+		else:
+			path += "/tuple_worker"
+		cmd = [path, tup_string, nine_clique_color_set_list_string , length]
+		result = Popen(cmd, stdout=PIPE)
 		out = result.stdout.read()
-		print len(out)
-		# tuple_info = []
-		# for line in out.split("\n"):
-		# print out
-
-
-
-
-	# def clique_counter_c(self, g):
-	# gsize = len(g[0])
-	# matrix_array = self.matrix_manager.matrix_to_array(g)
-	# path = inspect.stack()[0][1].split("MatrixIterator.py")[0]
-	# cmd = [path+"a.out", str(gsize),"".join(str(x) for x in matrix_array)]
-	# result = Popen(cmd, stdout=PIPE)
-	# out = result.stdout.read()
-	# ten_cliques = []
-	# nine_cliques = []
-	# counts = []
-	# for line in out.split("\n"):
-	# 	if "N" == line[0]:
-	# 		nine_cliques.append(list())
-	# 		for char in line[1:].split(","):
-	# 			nine_cliques[-1].append(int(char))
-	# 	elif "T" == line[0]:
-	# 			ten_cliques.append(list())
-	# 			for char in line[1:].split(","):
-	# 				ten_cliques[-1].append(int(char))
-	# 	else:
-	# 		row = line[1:].split(",")
-	# 		for char in row:
-	# 			counts.append(int(char))
-	# return counts[0], counts[1], counts[2], counts[3], counts[4], counts[5], nine_cliques, ten_cliques
-
-
+		print out
+		tuple_info = []
 
 	def is_clean_tuple(self, temp_result):
 		if not temp_result[2] and temp_result[3] == 0:

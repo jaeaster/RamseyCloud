@@ -9,10 +9,10 @@ void set_diff(int *x, int lenx, int *y, int leny, int *diff);
 void set_sym_diff(int *x, int lenx, int *y, int leny, int *diff);
 
 
+// argv[1] = "1,3" - tuple
+// argv[2] = "1,3,4,5,6,7,8,9|1,12,45,45,665,4534,5000"
+// argv[3] = "2" - length
 int main(int argc, char** argv) {
-  // argv[1] = "1,3" - tuple
-  // argv[2] = "1,3,4,5,6,7,8,9|1,12,45,45,665,4534,5000"
-  // argv[3] = "2" - length
   int i, j, length, tuple[2], **nine_cliques;
   char *p, *q, *z;
   length = atoi(argv[3]);
@@ -47,14 +47,14 @@ int main(int argc, char** argv) {
 
 
 int find_dirty_edges(int* tuple, int** color_set_list, int length) {
-  printf("Hellooo\n");
-  int i, j, k, *set_i, *set_j, diff[18];
+  int i, j, k, *set_i, *set_j, diff[19];
   int cost = 0;
   int proved_dirty = 0;
   for(i = 0; i < length - 1; i++) {
     for(j = i + 1; j < length; j++) {
       set_i = color_set_list[i];
       set_j = color_set_list[j];
+
       if(proceed_check(tuple, set_i, set_j)) {
         set_sym_diff(set_i, 9, set_j, 9, diff);
         for(k = 0; diff[k] != -1; k++);
@@ -65,7 +65,7 @@ int find_dirty_edges(int* tuple, int** color_set_list, int length) {
       }
     }
   }
-  printf("%d:%d:%d:%d\n", tuple[0], tuple[1], proved_dirty, cost);
+  printf("%d:%d:%d:%d", tuple[0], tuple[1], proved_dirty, cost);
   return cost;
 }
 
@@ -99,16 +99,14 @@ void set_diff(int *x, int lenx, int *y, int leny, int *diff)
       diff[pos] = x[i];
       pos++;
     }
-  if(pos < 8) {
-    diff[pos] = -1;
-  }
+  diff[pos] = -1;
   return;
 }
  
 /* X ^ Y */
 void set_sym_diff(int *x, int lenx, int *y, int leny, int *ret_diff)
 {
-  int diff1[9], diff2[9];
+  int diff1[10], diff2[10];
 
   int i, j;
   set_diff(x, lenx, y, leny, diff1);
@@ -119,8 +117,6 @@ void set_sym_diff(int *x, int lenx, int *y, int leny, int *ret_diff)
   for(j = 0; diff2[j] != -1; j++, i++) {
     ret_diff[i] = diff2[j];
   }
-  if(i < 17) {
-    ret_diff[i] = -1;
-  }
+  ret_diff[i] = -1;
   return;
 }
