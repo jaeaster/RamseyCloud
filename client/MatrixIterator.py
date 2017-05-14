@@ -141,6 +141,7 @@ class MatrixIterator:
 			return False, count
 
 	def clique_counter_c(self, g):
+		print "iterating matrix"
 		gsize = len(g[0])
 		matrix_array = self.matrix_manager.matrix_to_array(g)
 		path = os.path.dirname(__file__)
@@ -151,5 +152,5 @@ class MatrixIterator:
 		cmd = [path, str(gsize),"".join(str(x) for x in matrix_array)]
 		result = Popen(cmd, stdout=PIPE)
 		out = result.stdout.read()
-		print out
+		return
 

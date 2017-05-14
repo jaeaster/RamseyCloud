@@ -31,8 +31,8 @@ class Main:
 	    while True:
 	        dim = len(current_matrix[0])
 	        self.visualizer.print_hollywood_sign(dim, counter)
-	        current_matrix, is_ce, blue_clique_count, red_clique_count,cover_set,backup = self.smart_agent.smart_reduction(current_matrix,cover_set_log)
-	        #current_matrix, is_ce, blue_clique_count, red_clique_count,cover_set,backup = self.nine_clique_agent.reduce(current_matrix,cover_set_log)
+	        #current_matrix, is_ce, blue_clique_count, red_clique_count,cover_set,backup = self.smart_agent.smart_reduction(current_matrix,cover_set_log)
+	        current_matrix, is_ce, blue_clique_count, red_clique_count,cover_set,backup = self.nine_clique_agent.reduce(current_matrix,cover_set_log)
 	        if is_ce:
 	            cover_set_log = []
 	            current_matrix = self.network_manager.process_new_counter_example(current_matrix)
