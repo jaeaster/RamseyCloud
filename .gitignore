@@ -32,3 +32,4 @@ gossip_main
 .DS*
 *.pyc
 textfiles
+bin
