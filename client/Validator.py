@@ -36,10 +36,11 @@ class Validator:
       print(self.file_manager.generate_filename_string(i) + "   " + str(i))
       if use_c:
         start = time.time()
-        results  = self.matrix_iterator.clique_counter_c(matrix)
+        results = self.matrix_iterator.clique_counter_c(matrix)
         end = time.time()
         print("Time with c: ",end - start)
         print(results)
+        return
       else:
         start = time.time()
         results  = self.matrix_iterator.clique_counter(matrix)
@@ -64,5 +65,5 @@ class Validator:
 if __name__ == '__main__':
   validator = Validator()
   validator.validate_test_c(200, 200, True)
-  validator.validate_test_c(200, 200)
+  # validator.validate_test_c(200, 200)
 

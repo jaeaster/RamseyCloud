@@ -1,22 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-int find_dirty_edges(int* tuple, int** color_set_list, int length);
-int proceed_check(int* tuple, int* set_i, int* set_j);
-int in_set(int *x, int len, int match);
-void set_diff(int *x, int lenx, int *y, int leny, int *diff);
-void set_sym_diff(int *x, int lenx, int *y, int leny, int *diff);
-
+#include "declarations.h"
 
 // argv[1] = "1,3" - tuple
 // argv[2] = "1,3,4,5,6,7,8,9|1,12,45,45,665,4534,5000"
 // argv[3] = "2" - length
-int main(int argc, char** argv) {
+
+/* Commenting out for now since we can't have two main functions */
+/*int main(int argc, char** argv) {
   int i, j, length, tuple[2], **nine_cliques;
   char *p, *q, *z;
   length = atoi(argv[3]);
   z = strtok(argv[1], ",");
+  i = 0;
   while(z != NULL) {
     tuple[i] = atoi(z);
     z = strtok(NULL, ",");
@@ -43,7 +40,7 @@ int main(int argc, char** argv) {
   }
   find_dirty_edges(tuple, nine_cliques, length);
   return 0;
-}
+}*/
 
 
 int find_dirty_edges(int* tuple, int** color_set_list, int length) {

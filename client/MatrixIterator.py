@@ -134,7 +134,7 @@ class MatrixIterator:
 
 	def is_counter_example_c(self, g, gsize):
 		path = inspect.stack()[0][1].split("MatrixIterator.py")[0]
-		count = call([path+"a.out", str(gsize),"".join(str(x) for x in g)])
+		count = call([path+"main", str(gsize),"".join(str(x) for x in g)])
 		if count == 0:
 			return True, count
 		else:
@@ -145,28 +145,11 @@ class MatrixIterator:
 		matrix_array = self.matrix_manager.matrix_to_array(g)
 		path = os.path.dirname(__file__)
 		if not path:
-			path = "./clique_checker"
+			path = "./main"
 		else:
-			path += "/clique_checker"
+			path += "/main"
 		cmd = [path, str(gsize),"".join(str(x) for x in matrix_array)]
 		result = Popen(cmd, stdout=PIPE)
 		out = result.stdout.read()
-		ten_cliques = []
-		nine_cliques = []
-		counts = []
-		for line in out.split("\n"):
-			if "N" == line[0]:
-				nine_cliques.append(list())
-				for char in line[1:].split(","):
-					nine_cliques[-1].append(int(char))
-			elif "T" == line[0]:
-					ten_cliques.append(list())
-					for char in line[1:].split(","):
-						ten_cliques[-1].append(int(char))
-			else:
-				row = line[1:].split(",")
-				for char in row:
-					counts.append(int(char))
-		return counts[0], counts[1], counts[2], counts[3], counts[4], counts[5], nine_cliques, ten_cliques
-
+		print out
 

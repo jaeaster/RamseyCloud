@@ -66,7 +66,8 @@ class TenCliqueWorker():
 			path = "./tuple_worker"
 		else:
 			path += "/tuple_worker"
-		cmd = [path, tup_string, nine_clique_color_set_list_string , length]
+		print path
+		cmd = [path, tup_string, nine_clique_color_set_list_string, length]
 		result = Popen(cmd, stdout=PIPE)
 		out = result.stdout.read()
 		print out
