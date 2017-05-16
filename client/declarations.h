@@ -1,6 +1,7 @@
 #ifndef DECLARATIONS_H
 #define DECLARATIONS_H
 
+#define BUF_SIZE 1000
 #define TEN_SIZE 5000
 #define NINE_SIZE 100000
 
@@ -12,7 +13,7 @@ typedef struct {
 
 /* clique_count.c declarations */
 int CliqueCount10(int *g,int gsize);
-void CliqueCountAll(int *g, int gsize, CliqueInfo *info);
+int CliqueCountAll(int *g, int gsize);
 
 /* tuple_worker.c declarations */
 int find_dirty_edges(int* tuple, int** color_set_list, int length);

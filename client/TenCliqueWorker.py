@@ -64,10 +64,13 @@ class TenCliqueWorker():
 			path = "./tuple_worker"
 		else:
 			path += "/tuple_worker"
-		print path
-		cmd = [path, tup_string, nine_clique_color_set_list_string, length]
-		result = Popen(cmd, stdout=PIPE)
-		out = result.stdout.read()
+		cmd = [path, tup_string, length]
+		print("Starting C")
+		cproc = Popen(cmd, stdin=PIPE)
+		out, err = cproc.communicate(nine_clique_color_set_list_string)
+		print(err)
+		print(out)
+		# out = cproc.stdout.read()
 		parsed = out.split(':')
 		tuple_info = (int(parsed[0]),int(parsed[1]),int(parsed[2]),int(parsed[3]))
 		return tuple_info

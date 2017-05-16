@@ -2,16 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include "declarations.h"
-
 // argv[1] = "1,3" - tuple
 // argv[2] = "1,3,4,5,6,7,8,9|1,12,45,45,665,4534,5000"
 // argv[3] = "2" - length
 
 /* Commenting out for now since we can't have two main functions */
-/*int main(int argc, char** argv) {
-  int i, j, length, tuple[2], **nine_cliques;
-  char *p, *q, *z;
-  length = atoi(argv[3]);
+int main(int argc, char** argv) {
+  char intBuffer[BUF_SIZE];
+  int i, j, k, tmp, length, tuple[2], **nine_cliques;
+  char *p, *q, *z, c;
+  length = atoi(argv[2]);
   z = strtok(argv[1], ",");
   i = 0;
   while(z != NULL) {
@@ -23,24 +23,47 @@
   for(i = 0; i < length; i++) {
     nine_cliques[i] = (int *)malloc(sizeof(int) * 9);
   }
-  i = j = 0;
+  i = j = k = 0;
   char *end_str;
-  p = strtok_r(argv[2], "|", &end_str);
-  while(p != NULL) {
-    char *end_token;
-    q = strtok_r(p, ",", &end_token);
-    while(q != NULL) {
-      nine_cliques[i][j] = atoi(q);
-      q = strtok_r(NULL, ",", &end_token);
+  while(EOF != (c = fgetc(stdin))) {
+    if(c == ',') {
+      nine_cliques[i][j] = atoi(intBuffer);
+      k = 0;
+      memset(intBuffer, 0, BUF_SIZE);
       j++;
+      continue;
+    } else if(c == '|') {
+      nine_cliques[i][j] = atoi(intBuffer);
+      memset(intBuffer, 0, BUF_SIZE);
+      k = 0;
+      j = 0;
+      i++;
+    } else {
+      intBuffer[k] = c;
+      k++;
     }
-    p = strtok_r(NULL, "|", &end_str);
-    j = 0;
-    i++;
+
   }
+  printf("C tuple_worker parsed pipe\n");
+
+  // p = strtok_r(argv[2], "|", &end_str);
+  // while(p != NULL) {
+  //   char *end_token;
+  //   q = strtok_r(p, ",", &end_token);
+  //   while(q != NULL) {
+  //     nine_cliques[i][j] = atoi(q);
+  //     q = strtok_r(NULL, ",", &end_token);
+  //     j++;
+  //   }
+  //   p = strtok_r(NULL, "|", &end_str);
+  //   j = 0;
+  //   i++;
+  // }
   find_dirty_edges(tuple, nine_cliques, length);
+  // printf("Tuple: (%d, %d)\n", tuple[0], tuple[1]);
+  printf("C tuple_worker computation ended\n");
   return 0;
-}*/
+}
 
 
 int find_dirty_edges(int* tuple, int** color_set_list, int length) {

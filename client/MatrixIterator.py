@@ -146,11 +146,27 @@ class MatrixIterator:
 		matrix_array = self.matrix_manager.matrix_to_array(g)
 		path = os.path.dirname(__file__)
 		if not path:
-			path = "./main"
+			path = "./clique_count"
 		else:
-			path += "/main"
+			path += "/clique_count"
 		cmd = [path, str(gsize),"".join(str(x) for x in matrix_array)]
 		result = Popen(cmd, stdout=PIPE)
 		out = result.stdout.read()
-		return
+		ten_cliques = []
+		nine_cliques = []
+		counts = []
+		for line in out.split("\n"):
+			if "N" == line[0]:
+				nine_cliques.append(list())
+				for char in line[1:].split(","):
+					nine_cliques[-1].append(int(char))
+			elif "T" == line[0]:
+					ten_cliques.append(list())
+					for char in line[1:].split(","):
+						ten_cliques[-1].append(int(char))
+			else:
+				row = line[1:].split(",")
+				for char in row:
+					counts.append(int(char))
+		return counts[0], counts[1], counts[2], counts[3], counts[4], counts[5], nine_cliques, ten_cliques
 
