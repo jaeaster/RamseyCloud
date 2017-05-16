@@ -84,7 +84,6 @@ class SmartAgent:
 					continue
 		return coversets,backup_sets
 
-
 	def make_random_coverset(self, backup_sets):
 		coverset = []
 		for i in range(len(backup_sets)):
