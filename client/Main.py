@@ -86,6 +86,7 @@ class Main:
 			if is_ce:
 				cover_set_log = []
 				current_matrix = self.network_manager.process_new_counter_example(current_matrix)
+
 				#self.smtp_client.send_email(self.static.MAILING_LIST, dim)
 				counter = 0
 				continue
@@ -126,7 +127,7 @@ class Main:
 	        current_matrix, is_ce, blue_clique_count, red_clique_count = self.new_matrix_agent.mini_matrix_reduction(current_matrix)
 	        if is_ce:
 	            cover_set_log = []
-	            self.smtp_client.send_email(self.static.MAILING_LIST, dim)
+	            #self.smtp_client.send_email(self.static.MAILING_LIST, dim)
 	            current_matrix = self.network_manager.process_new_counter_example(current_matrix)
 	            counter = 0
 	        current_matrix = self.network_manager.probe_better_solution(current_matrix)
@@ -156,8 +157,8 @@ class Main:
 def run():
 	main = Main()
 	#main.main_smart_reduction()
-	#main.main_mini_matrix()
-	main.main_mini_matrix_expanded(5)
+	main.main_mini_matrix()
+	#main.main_mini_matrix_expanded(65)
 	#main.main_smart_expand(20)
 	#main.main_smart_to_greedy()
 	#main.main_k_greedy()

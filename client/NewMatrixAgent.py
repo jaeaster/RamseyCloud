@@ -16,6 +16,7 @@ class NewMatrixAgent:
 		self.network_manager = network_manager
 		self.matrix_iterator = MatrixIterator()
 		self.visualizer = Visualizer()
+		self.previous_dirty_set = []
 
 
 
@@ -24,14 +25,20 @@ class NewMatrixAgent:
 		c5,c6,c7,c8,c9,c10,ten_clique_double_array = self.matrix_iterator.clique_counter_c(matrix)
 		if c10 ==0:
 			print "Found counter example"
+			self.previous_dirty_set = []
 			return matrix, True, 0, 0#, [], []
 		else:
 			flipped_matrix = matrix
 			blue_clique_count, red_clique_count = self.count_number_of_cliques(ten_clique_double_array)
+			
 			print "Number of ten cliques in graph: %d" %c10
 			print "\nBLUE: %d" %blue_clique_count
 			print "\nRED %d\n" %red_clique_count
+			
 			clean_set, dirty_set = self.manage_ten_cliques(matrix, ten_clique_double_array)
+			
+
+			self.add_dirty_tuples_to_previous_dirty_set(dirty_set)
 			print "Clean: %s" %str(clean_set)
 			print "Dirty: %s" %str(dirty_set)
 			flipped_matrix = self.flip_edges_from_clean_and_dirty_cover_set(matrix, clean_set, dirty_set)
@@ -47,6 +54,9 @@ class NewMatrixAgent:
 				red_count += 1
 		return blue_count, red_count
 
+	def add_dirty_tuples_to_previous_dirty_set(self, dirty_set):
+		for elem in dirty_set:
+			self.previous_dirty_set.append(elem)
 
 	def generate_ten_clique_tuples(self, ten_clique_array):
 		clique_array_length = len(ten_clique_array)
@@ -92,7 +102,11 @@ class NewMatrixAgent:
 						best_cost = temp_cost
 						best_dirty_tuple = [tup]
 				if k == 44 and len(best_dirty_tuple) >= 1:
-					dirty_set.append(best_dirty_tuple[random.randint(0,len(best_dirty_tuple)-1)])
+					a = best_dirty_tuple[random.randint(0,len(best_dirty_tuple)-1)]
+					while a in self.previous_dirty_set:
+						a = fourty_five_tuples[random.randint(0,44)]
+					dirty_set.append(a)					
+
 		return clean_tuple_set, dirty_set
 
 	def is_resolved(self, fourty_five_tuples, clean_set, dirty_set):
