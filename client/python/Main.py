@@ -36,7 +36,7 @@ class Main:
 	        if is_ce:
 	            cover_set_log = []
 	            current_matrix = self.network_manager.process_new_counter_example(current_matrix)
-	            self.smtp_client.send_email(self.static.MAILING_LIST, dim)
+	            # self.smtp_client.send_email(self.static.MAILING_LIST, dim)
 	            counter = 0
 	        current_matrix = self.network_manager.probe_better_solution(current_matrix)
 	       	counter += 1

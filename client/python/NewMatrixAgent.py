@@ -1,12 +1,10 @@
-
 from FileManager import FileManager
 from NetworkManager import NetworkManager
 from MatrixManager import MatrixManager
 from Visualizer import Visualizer
 from MatrixIterator import MatrixIterator
-import time
 from random import randint
-import random
+
 class NewMatrixAgent:
 
 	def __init__(self, network_manager):
@@ -17,8 +15,6 @@ class NewMatrixAgent:
 		self.matrix_iterator = MatrixIterator()
 		self.visualizer = Visualizer()
 		self.previous_dirty_set = []
-
-
 
 	def mini_matrix_reduction(self, matrix):
 		print "New MAtrix Agent\n"
@@ -37,10 +33,7 @@ class NewMatrixAgent:
 			
 			clean_set, dirty_set = self.manage_ten_cliques(matrix, ten_clique_double_array)
 			
-
-			self.add_dirty_tuples_to_previous_dirty_set(dirty_set)
-			#print "Clean: %s" %str(clean_set)
-			#print "Dirty: %s" %str(dirty_set)
+			self.previous_dirty_set.append(dirty_set)
 			flipped_matrix = self.flip_edges_from_clean_and_dirty_cover_set(matrix, clean_set, dirty_set)
 			return flipped_matrix, False, blue_clique_count, red_clique_count#,smart_cover_set,backup_sets
 
@@ -54,9 +47,7 @@ class NewMatrixAgent:
 				red_count += 1
 		return blue_count, red_count
 
-	def add_dirty_tuples_to_previous_dirty_set(self, dirty_set):
-		for elem in dirty_set:
-			self.previous_dirty_set.append(elem)
+	
 
 	def generate_ten_clique_tuples(self, ten_clique_array):
 		clique_array_length = len(ten_clique_array)
@@ -71,6 +62,7 @@ class NewMatrixAgent:
 	def manage_ten_cliques(self,matrix,ten_clique_double_array):
 		clean_tuple_set = []
 		dirty_set = []
+		dirty_backup_set = []
 		counter = 0
 		print "Number of ten cliques: %d\n" %len(ten_clique_double_array)
 		for ten_clique in ten_clique_double_array:
@@ -101,12 +93,43 @@ class NewMatrixAgent:
 					elif temp_cost < best_cost:
 						best_cost = temp_cost
 						best_dirty_tuple = [tup]
-				if k == 44 and len(best_dirty_tuple) >= 1:
+				if k == 44:
 					a = best_dirty_tuple[random.randint(0,len(best_dirty_tuple)-1)]
-					while a in self.previous_dirty_set and a in dirty_set:
-						a = fourty_five_tuples[random.randint(0,44)]
-					dirty_set.append(a)					
+					if a not in dirty_set:
+						dirty_set.append(a)
+					dirty_backup_set.append(fourty_five_tuples[random.randint(0,44)])
+				elif k >=42:
+					m = fourty_five_tuples[random.randint(0,44)]
+					while m in dirty_backup_set:
+						m = fourty_five_tuples[random.randint(0,44)]
+					dirty_backup_set.append(m)
+
+
+		while self.is_dirty_in_prev(dirty_set):
+			if len(dirty_set) == 0:
+				print "dirty set was empty"
+				break
+			print "Trying backup"
+			print dirty_backup_set
+			for n in range(len(dirty_backup_set)):
+				a = dirty_backup_set[n][randint[0,len(dirty_backup_set[n])-1]]
+				if a not in dirty_set:
+					dirty_set.append(a)
 		return clean_tuple_set, dirty_set
+
+	def is_dirty_in_prev(self, dirty_set):
+		for prev_dirty in self.previous_dirty_set:
+			prev_dirty_length = len(prev_dirty)
+			dirty_length = len(dirty_set)
+			if dirty_length == prev_dirty_length:
+				counter = 0
+				for elem in prev_dirty:
+					if elem in dirty_set:
+						counter += 1
+				if counter == prev_dirty_length:
+					return True
+			return False
+
 
 
 
@@ -192,5 +215,3 @@ class NewMatrixAgent:
 
 	def invert_color(self, color):
 		return (color + 1)%2
-
-
