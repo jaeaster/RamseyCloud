@@ -6,7 +6,7 @@
 //
 //
 
-#include "ten_clique_worker.h"
+#include "../include/ten_clique_worker.h"
 
 //char *ten_clique
 //generate_ten_clique_tuples();
