@@ -141,7 +141,7 @@ class MatrixIterator:
 		matrix_array = self.matrix_manager.matrix_to_array(g)
 		path = inspect.stack()[0][1].split("MatrixIterator.py")[0]
 		cmd = [path+"a.out", str(gsize),"".join(str(x) for x in matrix_array)]
-		print(path+"a.out")
+		#print(path+"a.out")
 		result = Popen(cmd, stdout=PIPE)
 		out = result.stdout.read()
 		ten_cliques = []
