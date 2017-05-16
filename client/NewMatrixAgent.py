@@ -39,8 +39,8 @@ class NewMatrixAgent:
 			
 
 			self.add_dirty_tuples_to_previous_dirty_set(dirty_set)
-			print "Clean: %s" %str(clean_set)
-			print "Dirty: %s" %str(dirty_set)
+			#print "Clean: %s" %str(clean_set)
+			#print "Dirty: %s" %str(dirty_set)
 			flipped_matrix = self.flip_edges_from_clean_and_dirty_cover_set(matrix, clean_set, dirty_set)
 			return flipped_matrix, False, blue_clique_count, red_clique_count#,smart_cover_set,backup_sets
 
@@ -103,11 +103,44 @@ class NewMatrixAgent:
 						best_dirty_tuple = [tup]
 				if k == 44 and len(best_dirty_tuple) >= 1:
 					a = best_dirty_tuple[random.randint(0,len(best_dirty_tuple)-1)]
-					while a in self.previous_dirty_set:
+					while a in self.previous_dirty_set and a in dirty_set:
 						a = fourty_five_tuples[random.randint(0,44)]
 					dirty_set.append(a)					
-
 		return clean_tuple_set, dirty_set
+
+
+
+	# def inspect_tuple(self, tup, color, clean_set, counter, fourty_five_tuples ):
+	# 	mini_matrix, sub_set = self.generate_sub_set_matrix(matrix, tup, color)
+	# 	c5,c6,c7,c8,c9,c10,mini_ten_clique_double_array = self.matrix_iterator.clique_counter_c(mini_matrix)
+	# 	temp_cost = len(mini_ten_clique_double_array)
+	# 	clean_set_for_current_tuple = []
+	# 	if temp_cost == 0:
+	# 		if tup not in clean_tuple_set:
+	# 			clean_set_for_current_tuple.append(tup)
+	# 		if counter == 3:
+	# 			break
+	# 	else:
+	# 		if temp_cost == best_cost:
+	# 			best_dirty_tuple.append(tup)
+	# 		elif temp_cost < best_cost:
+	# 			best_cost = temp_cost
+	# 			best_dirty_tuple = [tup]
+	# 	clean_tuppick_clean_tuple_from_set(clean_set_for_current_tuple, clean_set))
+	# 	pick_dirty_tuple_from_set(best_dirty_tuple, self.previous_dirty_set, fourty_five_tuples))
+	# 	return clean_set, dirty_set	
+
+	# def pick_clean_tuple_from_set(self, tuple_set, log):
+	# 	tup = tuple_set(random.randint(0,len(tuple_set)-1))
+	# 	while tup in log:
+	# 		tup = tuple_set(random.randint(0,len(tuple_set)-1))
+	# 	return tup
+
+	# def pick_dirty_tuple_from_set(self, tuple_set, log, forty_five_tuples ):
+	# 	dirty_tup = best_dirty_tuple[random.randint(0,len(best_dirty_tuple)-1)]
+	# 	while dirty_tup in self.previous_dirty_set:
+	# 		dirty_tup = fourty_five_tuples[random.randint(0,44)]
+	# 	return dirty_tup
 
 	def is_resolved(self, fourty_five_tuples, clean_set, dirty_set):
 		for elem in fourty_five_tuples:
@@ -138,7 +171,7 @@ class NewMatrixAgent:
 
 
 	def flip_edges_from_clean_and_dirty_cover_set(self, matrix, clean_cover_set, dirty_set):
-		clean_string = "chose to flip from clean"
+		clean_string = "\nChose to flip from clean: "
 		flipped_matrix = matrix
 		for elem in clean_cover_set:
 			clean_string += str(elem)
@@ -146,14 +179,14 @@ class NewMatrixAgent:
 			y = elem[1]
 			flipped_matrix = self.matrix_manager.flip_one_bit(flipped_matrix, x, y)
 		print clean_string
-		print "\n"
-		dirty_string = 'chose to flip from dirty: '
+		dirty_string = '\nChose to flip from dirty: '
 		for elem in dirty_set:
 			dirty_string += str(elem)
 			x = elem[0]
 			y = elem[1]
 			flipped_matrix = self.matrix_manager.flip_one_bit(flipped_matrix, x, y)
 		print dirty_string
+		print "\n\n"
 		return flipped_matrix
 
 
