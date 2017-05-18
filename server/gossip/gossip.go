@@ -155,7 +155,7 @@ func (gs *GossipServer) ProcessRamseyRegister(conn net.Conn) {
   gs.SendMatrixACK(conn)
 }
 
-func (gs *GossipServer) ProcessMatrixAck(conn net.Conn) {
+func (gs *GossipServer) ProcessMatrixAck(conn net.Conn, body string) {
   // noop
   return
 }
