@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-
-from GreedyAgent import GreedyAgent
-from SmartAgent import SmartAgent
 from NetworkManager import NetworkManager
 from Visualizer import Visualizer
 from MatrixManager import MatrixManager
@@ -13,8 +10,6 @@ from NewMatrixAgent import NewMatrixAgent
 class Main:
 	def __init__(self):
 		self.network_manager = NetworkManager()
-		self.greedy_agent = GreedyAgent(self.network_manager)
-		self.smart_agent = SmartAgent(self.network_manager)
 		self.visualizer = Visualizer()
 		self.matrix_manager = MatrixManager()
 		self.smtp_client = SMTPClient()
@@ -36,7 +31,7 @@ class Main:
 	        if is_ce:
 	            cover_set_log = []
 	            current_matrix = self.network_manager.process_new_counter_example(current_matrix)
-	            # self.smtp_client.send_email(self.static.MAILING_LIST, dim)
+	            self.smtp_client.send_email(self.static.MAILING_LIST, dim)
 	            counter = 0
 	        current_matrix = self.network_manager.probe_better_solution(current_matrix)
 	       	counter += 1
@@ -64,11 +59,8 @@ class Main:
 
 def run():
 	main = Main()
-	#main.main_smart_reduction()
 	main.main_mini_matrix()
 	#main.main_mini_matrix_expanded(65)
-	#main.main_smart_expand(20)
-	#main.main_smart_to_greedy()
 	#main.main_k_greedy()
 	#main.main_validate(40,80)
 

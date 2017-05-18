@@ -1,4 +1,3 @@
-
 from Static import Static
 
 class Visualizer:

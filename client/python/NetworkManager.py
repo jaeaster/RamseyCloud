@@ -44,7 +44,7 @@ class NetworkManager:
           msg = "{0}\n{1}\n{2}END\n".format(self.m[message_type], dim, line)
       elif message_type == "IMPROVEMENT":
           msg = "{0}\n{1}\n{2}\n{3}END\n".format(self.m[message_type], num_cliques, dim, line)
-      self.server_socket.send(str.encode(msg))
+      self.server_socket.send(msg)
       ret_matrix = self.recv_matrix()
       if ret_matrix:
           return ret_matrix

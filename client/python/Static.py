@@ -1,6 +1,3 @@
-
-import os
-
 class Static:
 	def __init__(self):
 		base_path = os.path.dirname(__file__)

@@ -94,14 +94,14 @@ class NewMatrixAgent:
 						best_cost = temp_cost
 						best_dirty_tuple = [tup]
 				if k == 44:
-					a = best_dirty_tuple[random.randint(0,len(best_dirty_tuple)-1)]
+					a = best_dirty_tuple[randint(0,len(best_dirty_tuple)-1)]
 					if a not in dirty_set:
 						dirty_set.append(a)
-					dirty_backup_set.append(fourty_five_tuples[random.randint(0,44)])
+					dirty_backup_set.append(fourty_five_tuples[randint(0,44)])
 				elif k >=42:
-					m = fourty_five_tuples[random.randint(0,44)]
+					m = fourty_five_tuples[randint(0,44)]
 					while m in dirty_backup_set:
-						m = fourty_five_tuples[random.randint(0,44)]
+						m = fourty_five_tuples[randint(0,44)]
 					dirty_backup_set.append(m)
 
 
@@ -112,7 +112,7 @@ class NewMatrixAgent:
 			print "Trying backup"
 			print dirty_backup_set
 			for n in range(len(dirty_backup_set)):
-				a = dirty_backup_set[n][randint[0,len(dirty_backup_set[n])-1]]
+				a = dirty_backup_set[n][randint(0,len(dirty_backup_set[n])-1)]
 				if a not in dirty_set:
 					dirty_set.append(a)
 		return clean_tuple_set, dirty_set
@@ -154,15 +154,15 @@ class NewMatrixAgent:
 	# 	return clean_set, dirty_set	
 
 	# def pick_clean_tuple_from_set(self, tuple_set, log):
-	# 	tup = tuple_set(random.randint(0,len(tuple_set)-1))
+	# 	tup = tuple_set(randint(0,len(tuple_set)-1))
 	# 	while tup in log:
-	# 		tup = tuple_set(random.randint(0,len(tuple_set)-1))
+	# 		tup = tuple_set(randint(0,len(tuple_set)-1))
 	# 	return tup
 
 	# def pick_dirty_tuple_from_set(self, tuple_set, log, forty_five_tuples ):
-	# 	dirty_tup = best_dirty_tuple[random.randint(0,len(best_dirty_tuple)-1)]
+	# 	dirty_tup = best_dirty_tuple[randint(0,len(best_dirty_tuple)-1)]
 	# 	while dirty_tup in self.previous_dirty_set:
-	# 		dirty_tup = fourty_five_tuples[random.randint(0,44)]
+	# 		dirty_tup = fourty_five_tuples[randint(0,44)]
 	# 	return dirty_tup
 
 	def is_resolved(self, fourty_five_tuples, clean_set, dirty_set):

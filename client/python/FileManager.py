@@ -1,5 +1,3 @@
-
-
 from Static import Static
 from MatrixManager import MatrixManager
 import os
