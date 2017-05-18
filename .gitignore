@@ -28,8 +28,8 @@ _testmain.go
 *.prof
 
 main
-ramsey_main
-gossip_main
+ramsey_main/ramsey_main
+gossip_main/gossip_main
 a.out
 tuple_worker
 clique_counter
