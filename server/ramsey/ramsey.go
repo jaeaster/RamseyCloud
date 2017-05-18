@@ -10,7 +10,9 @@ import(
   "strconv"
   "os"
   "log"
-  "github.com/EasterAndJay/cloud/server"
+  "math/rand"
+  "time"
+  "github.com/easterandjay/RamseyCloud/server"
 )
 
 const (
@@ -30,6 +32,13 @@ type RamseyServer struct {
   lowestCliqueCount int
 }
 
+func getGossipIP() string {
+  ips := [...]string {"0.0.0.0", "0.0.0.0"}
+  rand.Seed(time.Now().Unix())
+  ip := ips[rand.Intn(len(ips))])
+  return ip
+}
+
 func New(port string) *RamseyServer {
   file, err := os.OpenFile(LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
   server.CheckError(err)
@@ -47,6 +56,7 @@ func New(port string) *RamseyServer {
     log: log.New(file, "LOG: ", log.Ldate|log.Ltime|log.Lshortfile),
     clientChan: make(chan bool, server.MAX_CLIENTS),
   }
+  rs.RegisterWithGossip()
   return rs
 }
 
@@ -81,7 +91,6 @@ func (rs *RamseyServer) DecrementClientChannel() {
 func (rs *RamseyServer) Log(message string, a ...interface{}) {
   rs.log.Printf(message, a...)
 }
-
 
 func (rs *RamseyServer) ProcessSuccess(conn net.Conn, body string) {
   split := strings.SplitN(body, "\n", 2)
@@ -134,9 +143,15 @@ func (rs *RamseyServer) ProcessRamseyRegister(conn net.Conn) {
   return
 }
 
-func (rs *RamseyServer) ProcessMatrixAck(conn net.Conn) {
-  // Ramsey processes Matrick ACK from Gossip
-  return
+func (rs *RamseyServer) ProcessMatrixAck(conn net.Conn, body string) {
+  // Ramsey processes Matrix ACK from Gossip
+  split := strings.SplitN(body, "\n", 2)
+  gossipHigh, err := strconv.Atoi(split[0])
+  server.CheckError(err)
+  if rs.high <= gossipHigh {
+    rs.high = gossipHigh
+    rs.matrix = split[1][:len(split[1])-4]
+  }
 }
 
 func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {
@@ -152,8 +167,10 @@ func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {
 
 func (rs *RamseyServer) RegisterWithGossip(gossipIP string) {
   // Get my IP
+  gossipIP := getGossipIP()
   conn, err := net.Dial("tcp", gossipIP)
   for err != nil {
+    gossipIP := getGossipIP()
     conn, err = net.Dial("tcp", gossipIP)
   }
   rs.gossipConn = conn
@@ -163,9 +180,6 @@ func (rs *RamseyServer) RegisterWithGossip(gossipIP string) {
   if closed {
     fmt.Println("Gossip down!")
   }
-
-  split := strings.SplitN(resp, "\n", 3)
-  rs.high, err = strconv.Atoi(split[1])
-  server.CheckError(err)
-  rs.matrix = split[2][:len(split[2])-4]
+  split := strings.SplitN(resp, "\n", 2)
+  rs.ProcessMatrixAck(conn, split[1])
 }

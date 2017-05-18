@@ -89,7 +89,7 @@ func ProcessConn(s Server, conn net.Conn) {
     case RAMSEY_REGISTER:
       s.ProcessRamseyRegister(conn)
     case MATRIX_ACK:
-      s.ProcessMatrixAck(conn)
+      s.ProcessMatrixAck(conn, body)
     default:
       content := scanner.Text()
       conn.Write([]byte("Content received: " + content + "\n"))

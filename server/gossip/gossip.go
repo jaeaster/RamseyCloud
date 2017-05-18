@@ -9,8 +9,8 @@ import (
   "strconv"
   "os"
   "log"
-  "github.com/EasterAndJay/cloud/s3util"
-  "github.com/EasterAndJay/cloud/server"
+  "github.com/easterandjay/RamseyCloud/s3util"
+  "github.com/easterandjay/RamseyCloud/server"
 )
 
 const (
@@ -172,7 +172,7 @@ func (gs *GossipServer) SendMatrixACK(conn net.Conn) {
 }
 
 func (gs *GossipServer) SendServerList(conn net.Conn) {
-  resp := fmt.Sprintf("%s\n%d\n%sEND\n", strconv.Itoa(server.MATRIX_ACK), strings.Join(gs.serverList, "\n"))
+  resp := fmt.Sprintf("%s\n%d\n%sEND\n", strconv.Itoa(server.SERVER_LIST_ACK), strings.Join(gs.serverList, "\n"))
   conn.Write([]byte(resp))
 }
 

@@ -2,8 +2,8 @@ package main
 
 import(
   "os"
-  "github.com/EasterAndJay/cloud/server"
-  "github.com/EasterAndJay/cloud/server/gossip"
+  "github.com/easterandjay/RamseyCloud/server"
+  "github.com/easterandjay/RamseyCloud/server/gossip"
 )
 
 const (
