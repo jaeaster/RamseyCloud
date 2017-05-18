@@ -1,5 +1,3 @@
-
-import random
 from random import randint
 
 class MatrixManager:

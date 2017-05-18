@@ -9,6 +9,7 @@ _test
 .euca
 .aws
 counterexamples
+textfiles
 
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -29,6 +30,8 @@ _testmain.go
 main
 ramsey_main
 gossip_main
+a.out
+tuple_worker
+clique_counter
 .DS*
 *.pyc
-textfiles

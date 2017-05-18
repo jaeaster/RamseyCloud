@@ -1,4 +1,7 @@
-executable = matrix.py
+executable = python/Main.py
+should_transfer_files = YES
+transfer_input_files = bin/clique_counter, python/FileManager.py, python/MatrixIterator.py, python/MatrixManager.py, python/NetworkManager.py, python/NewMatrixAgent.py, python/SMTPC
+lient.py, python/Static.py, python/Validator.py, python/Visualizer.py
 universe   = vanilla
 output     = matrix.out
 error      = matrix.err

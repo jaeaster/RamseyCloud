@@ -1,8 +1,6 @@
-
 import sys
 import os
 import re
-
 import smtplib
 
 class SMTPClient:
