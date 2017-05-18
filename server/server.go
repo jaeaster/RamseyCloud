@@ -41,7 +41,7 @@ type Server interface {
   ProcessStateQuery(net.Conn)
   ProcessClientRegister(net.Conn)
   ProcessRamseyRegister(net.Conn)
-  ProcessMatrixAck(net.Conn)
+  ProcessMatrixAck(net.Conn, string)
   SendMatrixACK(net.Conn)
 }
 

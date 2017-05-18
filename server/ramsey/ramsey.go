@@ -35,7 +35,7 @@ type RamseyServer struct {
 func getGossipIP() string {
   ips := [...]string {"0.0.0.0", "0.0.0.0"}
   rand.Seed(time.Now().Unix())
-  ip := ips[rand.Intn(len(ips))])
+  ip := ips[rand.Intn(len(ips))]
   return ip
 }
 
@@ -165,7 +165,7 @@ func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {
   conn.Write([]byte(resp))
 }
 
-func (rs *RamseyServer) RegisterWithGossip(gossipIP string) {
+func (rs *RamseyServer) RegisterWithGossip() {
   // Get my IP
   gossipIP := getGossipIP()
   conn, err := net.Dial("tcp", gossipIP)
