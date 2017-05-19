@@ -7,7 +7,6 @@ import(
 
 const (
   PORT = "57339"
-  GOSSIP_IP = "128.111.192.123"
 )
 
 func main() {

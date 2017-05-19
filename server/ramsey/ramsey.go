@@ -33,7 +33,7 @@ type RamseyServer struct {
 }
 
 func getGossipIP() string {
-  ips := [...]string {"0.0.0.0", "0.0.0.0"}
+  ips := [...]string {"169.231.235.24", "169.231.235.172", "169.231.235.186"}
   rand.Seed(time.Now().Unix())
   ip := ips[rand.Intn(len(ips))]
   return ip
