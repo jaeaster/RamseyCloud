@@ -5,8 +5,15 @@ metadata:
   labels:
     app: gossip
 spec:
+  volumes:
+    - name: task-pv-storage
+      persistentVolumeClaim:
+       claimName: task-pv-claim
   containers:
   - name: gossip-server
     image: jeasterman/gossip_main
     ports:
     - containerPort: 33957
+    volumeMounts:
+      - mountPath: "/root"
+        name: task-pv-storage
