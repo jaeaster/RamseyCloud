@@ -4,10 +4,6 @@ metadata:
   name: ramsey-backend
 spec:
   containers:
-    – name: ramsey_server
-      image: jeasterman/ramsey_main
-      ports:
-        – containerPort: 57339
     – name: gossip_server
       image: jeasterman/gossip_main
       ports:
