@@ -85,7 +85,8 @@ func (rs *RamseyServer) DecrementClientChannel() {
 }
 
 func (rs *RamseyServer) Log(message string, a ...interface{}) {
-  rs.log.Printf(message, a...)
+  // rs.log.Printf(message, a...)
+  fmt.Printf(message, a...)
 }
 
 func (rs *RamseyServer) ProcessSuccess(conn net.Conn, body string) {

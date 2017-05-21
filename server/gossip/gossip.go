@@ -94,7 +94,8 @@ func (gs *GossipServer) DecrementClientChannel() {
 }
 
 func (gs *GossipServer) Log(message string, a ...interface{}) {
-  gs.log.Printf(message, a...)
+  // gs.log.Printf(message, a...)
+  fmt.Printf(message, a...)
 }
 
 func (gs *GossipServer) ProcessSuccess(conn net.Conn, body string) {
