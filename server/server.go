@@ -27,6 +27,9 @@ const (
   MAX_CLIENTS = 1000
 )
 
+var GossipIP string = os.Getenv(GOSSIP_SERVICE_SERVICE_HOST)
+var GossipPort string = os.Getenv(GOSSIP_SERVICE_SERVICE_PORT)
+
 type Server interface {
   GetIP() string
   GetPort() string
@@ -47,7 +50,11 @@ type Server interface {
 
 func Run(s Server) {
   s.Log("Launching server at %s%s\n", s.GetIP(), s.GetPort())
-  ln, _ := net.Listen("tcp", s.GetPort())
+  ln, err := net.Listen("tcp", fmt.Sprintf(":%s", s.GetPort()))
+  if err != nil {
+    fmt.Printf( "Fatal Error: %s\n", err.Error())
+    os.Exit(1)
+  }
   for {
     conn, err := ln.Accept()
     if err != nil {

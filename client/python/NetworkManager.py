@@ -10,14 +10,17 @@ class NetworkManager:
   def __init__(self):
     self.static = Static()
     self.server_port = 57339
-    self.server_name = "128.111.43.14"
+    self.server_name = "0.0.0.0"
     self.m = {
       "SUCCESS": "0",
-      "ACK": "1",
+      "IMPROVEMENT": "1",
       "STATE_QUERY": "2",
-      "IMPROVEMENT": "3"
+      "CLIENT_REGISTER": "3",
+      "RAMSEY_REGISTER": "4",
+      "MATRIX_ACK": "5",
+      "SERVER_LIST_ACK": "6"
     }
-    if not   self.static.NETWORK_DOWN:
+    if not self.static.NETWORK_DOWN:
       self.server_socket = socket(AF_INET, SOCK_STREAM)
       self.server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
       self.server_socket.connect((self.server_name, self.server_port))
@@ -56,7 +59,7 @@ class NetworkManager:
       if len(resp) < 3:
           return None
       message_type, n, new_matrix = resp[0], int(resp[1]), resp[2]
-      if message_type == self.m["ACK"]:
+      if message_type == self.m["MATRIX_ACK"]:
           ret_matrix = self.matrix_manager.make_matrix(n)
           new_matrix = new_matrix.split("\n")
           for i, line in enumerate(new_matrix):

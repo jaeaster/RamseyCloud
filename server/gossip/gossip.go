@@ -151,6 +151,7 @@ func (gs *GossipServer) ProcessClientRegister(conn net.Conn) {
 }
 
 func (gs *GossipServer) ProcessRamseyRegister(conn net.Conn) {
+  fmt.Printf("Registering ramsey\n")
   gs.RegisterRamsey(conn)
   gs.SendMatrixACK(conn)
 }

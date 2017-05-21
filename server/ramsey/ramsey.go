@@ -33,9 +33,7 @@ type RamseyServer struct {
 }
 
 func getGossipIP() string {
-  ips := [...]string {"169.231.235.24", "169.231.235.186"}
-  rand.Seed(time.Now().Unix())
-  ip := ips[rand.Intn(len(ips))]
+  ip := fmt.Sprintf("%s:%s", server.GossipIP, server.GossipPort)
   return ip
 }
 
@@ -52,7 +50,7 @@ func New(port string) *RamseyServer {
     lowestCliqueCount: -1,
     clients: make(map[string]net.Conn),
     ip: string(bodyBytes)[:len(bodyBytes) - 1],
-    port: fmt.Sprintf(":%s", port),
+    port: fmt.Sprintf("%s", port),
     log: log.New(file, "LOG: ", log.Ldate|log.Ltime|log.Lshortfile),
     clientChan: make(chan bool, server.MAX_CLIENTS),
   }
@@ -166,20 +164,22 @@ func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {
 }
 
 func (rs *RamseyServer) RegisterWithGossip() {
-  // Get my IP
   gossipIP := getGossipIP()
+  fmt.Printf("Connecting to gossip\n")
   conn, err := net.Dial("tcp", gossipIP)
   for err != nil {
+    fmt.Printf("Connecting to gossip\n")
     gossipIP := getGossipIP()
     conn, err = net.Dial("tcp", gossipIP)
   }
   rs.gossipConn = conn
-  fmt.Fprintf(conn, "RAMSEY_REGISTER\n%s\nEND\n", rs.GetIP())
+  fmt.Fprintf(conn, "%s\n%s\nEND\n", server.RAMSEY_REGISTER, rs.GetIP())
   scanner := bufio.NewScanner(conn)
   resp, closed := server.RecvMsg(scanner)
   if closed {
     fmt.Println("Gossip down!")
   }
   split := strings.SplitN(resp, "\n", 2)
+  fmt.Printf("Processing Matrix\n")
   rs.ProcessMatrixAck(conn, split[1])
 }

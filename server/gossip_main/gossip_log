@@ -1,0 +1,17 @@
+LOG: 2017/05/20 18:57:28 gossip.go:97: Launching server at 169.231.136.22133957
+LOG: 2017/05/20 18:58:23 gossip.go:97: Launching server at 169.231.136.22133957
+LOG: 2017/05/20 19:00:34 gossip.go:97: Launching server at 169.231.136.22133957
+LOG: 2017/05/20 19:01:34 gossip.go:97: Launching server at 169.231.136.22133957
+LOG: 2017/05/20 19:04:43 gossip.go:97: New connection from: [::1]:59657
+LOG: 2017/05/20 19:04:43 gossip.go:97: Total active clients: 1
+LOG: 2017/05/20 19:04:43 gossip.go:97: Waiting for message from [::1]:59657
+LOG: 2017/05/20 19:04:43 gossip.go:97: Message Type Received: RAMSEY_REGISTER
+LOG: 2017/05/20 19:04:43 gossip.go:97: Waiting for message from [::1]:59657
+LOG: 2017/05/20 19:04:43 gossip.go:97: Closing connection to [::1]:59657
+LOG: 2017/05/20 19:16:39 gossip.go:97: Launching server at 169.231.136.22133957
+LOG: 2017/05/20 19:16:39 gossip.go:97: New connection from: [::1]:60142
+LOG: 2017/05/20 19:16:39 gossip.go:97: Total active clients: 1
+LOG: 2017/05/20 19:16:39 gossip.go:97: Waiting for message from [::1]:60142
+LOG: 2017/05/20 19:16:39 gossip.go:97: Message Type Received: %!s(int=4)
+LOG: 2017/05/20 19:16:39 gossip.go:97: Waiting for message from [::1]:60142
+LOG: 2017/05/20 19:29:00 gossip.go:97: Closing connection to [::1]:60142

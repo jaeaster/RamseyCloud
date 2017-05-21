@@ -1,3 +1,5 @@
+import os
+
 class Static:
 	def __init__(self):
 		base_path = os.path.dirname(__file__)
@@ -12,7 +14,7 @@ class Static:
 	
 		self.MAX_RECV_LINE = 2048
 		self.TIMEOUT = 2
-		self.NETWORK_DOWN = True
+		self.NETWORK_DOWN = False
 
 		self.PATH_STRING_SOLUTION = path_solution
 		self.PATH_STRING_IMPROVEMENTS = path_improvements
