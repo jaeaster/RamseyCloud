@@ -126,9 +126,9 @@ func RecvMsg(scanner *bufio.Scanner) (string, bool) {
 }
 
 func CheckError(err error) {
-  file, err := os.OpenFile(LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-  if err != nil {
-    fmt.Fprintf(file, "Fatal Error: %s\n", err.Error())
+  // file, err := os.OpenFile(LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+  // if err != nil {
+    fmt.Printf("Fatal Error: %s\n", err.Error())
     os.Exit(1)
-  }
+  // }
 }

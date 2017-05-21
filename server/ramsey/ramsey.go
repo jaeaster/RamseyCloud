@@ -173,10 +173,11 @@ func (rs *RamseyServer) RegisterWithGossip() {
   conn, err := net.Dial("tcp", gossipIP)
   for err != nil {
     fmt.Printf("Error connecting to gossip: %v\n", err)
-    fmt.Printf("Connecting to gossip\n")
+    fmt.Printf("Reconnecting to gossip\n")
     gossipIP := getGossipIP()
     conn, err = net.Dial("tcp", gossipIP)
   }
+  fmt.Printf("Connected to gossip!\n")
   rs.gossipConn = conn
   fmt.Fprintf(conn, "%s\n%s\nEND\n", server.RAMSEY_REGISTER, rs.GetIP())
   scanner := bufio.NewScanner(conn)
