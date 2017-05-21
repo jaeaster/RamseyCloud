@@ -18,7 +18,7 @@ const (
 
 func main() {
   gs := gossip.New(
-    os.Getenv(HOME) + AWS_CREDS_FILE,
+    "/home" + AWS_CREDS_FILE,
     AWS_PROFILE,
     REGION,
     PORT,

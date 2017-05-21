@@ -15,5 +15,5 @@ spec:
     ports:
     - containerPort: 33957
     volumeMounts:
-      - mountPath: "/root"
+      - mountPath: "/home"
         name: task-pv-storage
