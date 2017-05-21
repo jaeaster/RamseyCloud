@@ -8,6 +8,6 @@ spec:
   capacity:
     storage: 1Gi
   accessModes:
-    - ReadWrite
+    - ReadWriteMany
   hostPath:
     path: "/tmp/data"

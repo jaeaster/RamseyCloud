@@ -1,4 +1,4 @@
-apiVersion: networking/v1
+apiVersion: extensions/v1beta1
 kind: NetworkPolicy
 metadata:
   name: ramsey-network
@@ -11,7 +11,7 @@ spec:
         matchLabels:
           name: ramsey-backend
     ports:
-    - protocol: tcp
+    - protocol: TCP
       port: 57339
-    - protocol: tcp
+    - protocol: TCP 
       port: 33957
