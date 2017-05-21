@@ -114,7 +114,7 @@ func (gs *GossipServer) ProcessSuccess(conn net.Conn, body string) {
       gs.high = nInt
       gs.Log("Found new Counter example!\n")
       gs.Log(gs.matrix)
-      gs.buck.Upload([]byte(gs.matrix), gs.buckName, gs.buckPrefix + n)
+      gs.storeMatrix([]byte(gs.matrix))
       for _, client := range gs.clients {
         gs.SendMatrixACK(client)
       }
@@ -124,6 +124,10 @@ func (gs *GossipServer) ProcessSuccess(conn net.Conn, body string) {
   } else {
     gs.SendMatrixACK(conn)
   }
+}
+
+func (gs *GossipServer) storeMatrix(matrix []byte) {
+  gs.buck.Upload(matrix, gs.buckName, gs.buckPrefix + n)
 }
 
 func (gs *GossipServer) ProcessImprovement(conn net.Conn, body string) {
