@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: ramsey-backend
+  name: gossip-backend
 spec:
   containers:
     – name: gossip_server
-      image: jeasterman/gossip_main
-      ports:
-        – containerPort: 33957
+    image: jeasterman/gossip_main
+    ports:
+      – containerPort: 33957
