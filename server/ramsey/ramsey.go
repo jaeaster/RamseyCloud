@@ -10,8 +10,6 @@ import(
   "strconv"
   "os"
   "log"
-  "math/rand"
-  "time"
   "github.com/easterandjay/RamseyCloud/server"
 )
 
