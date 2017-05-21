@@ -2,10 +2,8 @@ package ramsey
 
 import(
   "net"
-  "net/http"
   "fmt"
   "bufio"
-  "io/ioutil"
   "strings"
   "strconv"
   "os"
@@ -38,16 +36,10 @@ func getGossipIP() string {
 func New(port string) *RamseyServer {
   file, err := os.OpenFile(LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
   server.CheckError(err)
-  resp, err := http.Get("http://myexternalip.com/raw")
-  server.CheckError(err)
-  defer resp.Body.Close()
-  bodyBytes, err := ioutil.ReadAll(resp.Body)
-  server.CheckError(err)
   rs := &RamseyServer{
     matrixIsCounterExample: true,
     lowestCliqueCount: -1,
     clients: make(map[string]net.Conn),
-    ip: string(bodyBytes)[:len(bodyBytes) - 1],
     port: fmt.Sprintf("%s", port),
     log: log.New(file, "LOG: ", log.Ldate|log.Ltime|log.Lshortfile),
     clientChan: make(chan bool, server.MAX_CLIENTS),
@@ -57,7 +49,20 @@ func New(port string) *RamseyServer {
 }
 
 func (rs *RamseyServer) GetIP() string {
-  return rs.ip
+  name, err := os.Hostname()
+  if err != nil {
+    fmt.Printf("Hostname Retrieval Error: %v\n", err)
+    return "-1"
+  }
+  addrs, err := net.LookupHost(name)
+  if err != nil {
+    fmt.Printf("IP Address Retrieval Error: %v\n", err)
+    return "-1"
+  }
+  for _, a := range addrs {
+    return a
+  }
+  return "-1"
 }
 
 func (rs *RamseyServer) GetPort() string {
