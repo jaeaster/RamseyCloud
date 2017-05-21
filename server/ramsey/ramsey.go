@@ -169,9 +169,10 @@ func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {
 
 func (rs *RamseyServer) RegisterWithGossip() {
   gossipIP := getGossipIP()
-  fmt.Printf("Connecting to gossip\n")
+  fmt.Printf("Connecting to gossip at %s\n", gossipIP)
   conn, err := net.Dial("tcp", gossipIP)
   for err != nil {
+    fmt.Printf("Error connecting to gossip: %v\n", err)
     fmt.Printf("Connecting to gossip\n")
     gossipIP := getGossipIP()
     conn, err = net.Dial("tcp", gossipIP)
