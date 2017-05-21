@@ -1,7 +1,7 @@
 package main
 
 import(
-  "os"
+  // "os"
   "github.com/easterandjay/RamseyCloud/server"
   "github.com/easterandjay/RamseyCloud/server/gossip"
 )
