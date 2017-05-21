@@ -27,8 +27,8 @@ const (
   MAX_CLIENTS = 1000
 )
 
-var GossipIP string = os.Getenv(GOSSIP_SERVICE_SERVICE_HOST)
-var GossipPort string = os.Getenv(GOSSIP_SERVICE_SERVICE_PORT)
+var GossipIP string = os.Getenv("GOSSIP_SERVICE_SERVICE_HOST")
+var GossipPort string = os.Getenv("GOSSIP_SERVICE_SERVICE_PORT")
 
 type Server interface {
   GetIP() string
