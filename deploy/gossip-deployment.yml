@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: gossip-backend
+  labels:
+    app: backend
 spec:
   containers:
   - name: gossip-server
