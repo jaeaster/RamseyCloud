@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: gossip-service
+spec:
+  selector:
+    app: gossip
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 33957

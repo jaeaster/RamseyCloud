@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ramsey-service
+spec:
+  selector:
+    app: ramsey
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 57339
