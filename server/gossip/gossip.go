@@ -126,7 +126,7 @@ func (gs *GossipServer) ProcessSuccess(conn net.Conn, body string) {
   }
 }
 
-func (gs *GossipServer) storeMatrix(matrix []byte, n int) {
+func (gs *GossipServer) storeMatrix(matrix []byte, n string) {
   gs.buck.Upload(matrix, gs.buckName, gs.buckPrefix + n)
 }
 
