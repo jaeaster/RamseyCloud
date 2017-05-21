@@ -1,0 +1,17 @@
+apiVersion: networking/v1
+kind: NetworkPolicy
+metadata:
+  name: ramsey-network
+  namespace: default
+spec:
+  podSelector:
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          name: ramsey-backend
+    ports:
+    - protocol: tcp
+      port: 57339
+    - protocol: tcp
+      port: 33957

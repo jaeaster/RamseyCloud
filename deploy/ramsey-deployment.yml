@@ -4,7 +4,7 @@ metadata:
   name: ramsey-backend
 spec:
   containers:
-    – name: ramsey_server
-      image: jeasterman/ramsey_main
-      ports:
-        – containerPort: 57339
+  - name: ramsey-server
+    image: jeasterman/ramsey_main
+    ports:
+    - containerPort: 57339
