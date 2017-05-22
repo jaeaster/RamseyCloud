@@ -40,6 +40,11 @@ func New(
  prefix string) *GossipServer {
   file, err := os.OpenFile(LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
   server.CheckError(err)
+  resp, err := http.Get("https://google.com")
+  if err != nil {
+    server.CheckError(err)
+  }
+  defer resp.Body.Close()
   buck := s3util.NewBucket(awsCredFile, awsProfile, awsRegion)
   matrix, high := buck.FindHighestMatrix(bucket, prefix)
   return &GossipServer{
