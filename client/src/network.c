@@ -117,15 +117,20 @@ int request_matrix() {
 }
 
 void recv_payload(char *payload) {
-  int nBytes, size;
+  int nBytes;
+  char *tmp = payload;
   char buf[MAX_RECV];
-  size = 0;
   printf("Receiving Payload from Server\n");
   while((nBytes = recv(sockfd, buf, MAX_RECV, 0)) > 0) {
-    memcpy(payload, buf, nBytes);
+    memcpy(tmp, buf, nBytes);
+    tmp += nBytes;
+    if(strstr(buf, "END") != NULL) {
+      break;
+    }
     memset(buf, 0, MAX_RECV);
-    size += nBytes;
   }
   printf("Received Payload from Server\n");
-  payload[size] = '\0';
+  *tmp = '\0';
+  printf("%s\n", payload);
+  
 }
