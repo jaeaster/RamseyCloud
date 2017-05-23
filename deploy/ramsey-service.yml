@@ -2,6 +2,8 @@ kind: Service
 apiVersion: v1
 metadata:
   name: ramsey-service
+  annotations:
+    service.beta.kubernetes.io/external-traffic: "OnlyLocal"
 spec:
   type: NodePort
   selector:
@@ -10,5 +12,3 @@ spec:
     - protocol: TCP
       port: 57339
       nodePort: 30080
-  externalIPs: 
-    - 169.231.235.174
