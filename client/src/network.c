@@ -112,7 +112,7 @@ int request_matrix() {
   char msg[7];
   MessageType mt = STATE_QUERY;
   sprintf(msg, "%d\nEND\n", (int)mt);
-  send(sockfd, msg, 7);
+  send(sockfd, msg, 7, 0);
   return recv_matrix();
 }
 

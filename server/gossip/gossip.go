@@ -2,6 +2,7 @@ package gossip
 
 import (
   "net"
+  "net/http"
   "fmt"
   "strings"
   "strconv"

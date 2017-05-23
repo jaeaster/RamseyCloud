@@ -9,3 +9,5 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 57339
+  externalIPs: 
+    - 169.231.235.174
