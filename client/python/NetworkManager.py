@@ -10,7 +10,7 @@ class NetworkManager:
   def __init__(self):
     self.static = Static()
     self.server_port = 57339
-    self.server_name = "0.0.0.0"
+    self.server_name = "100.112.48.4"
     self.m = {
       "SUCCESS": "0",
       "IMPROVEMENT": "1",

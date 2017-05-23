@@ -6,19 +6,19 @@
 //
 //
 
-#include "../include/ten_clique_worker.h"
+#include "../include/../include/ten_clique_worker.h"
 
 //char *ten_clique
 //generate_ten_clique_tuples();
 
 
 
-int main(int argc, char **argv){
+// int main(int argc, char **argv){
     
-    printf("%s\n", argv[1]);
+//     printf("%s\n", argv[1]);
     
-    return 1;
-}
+//     return 1;
+// }
 
 ////char *ten_clique
 //int generate_ten_clique_tuples( ){

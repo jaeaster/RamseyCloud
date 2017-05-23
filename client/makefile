@@ -1,15 +1,14 @@
 CC = gcc
 CFLAGS = -g -Wall
-EXECUTABLES = bin/clique_counter bin/tuple_worker
-USER_OBJS = bin/clique_counter.o bin/tuple_worker.o
+EXECUTABLES = RamseyC
+USER_OBJS = bin/Actions.o bin/CliqueAnalyzer.o bin/MatrixAgent2.o \
+bin/bron.o bin/cliqueCounter.o bin/debug.o bin/io.o bin/main.o bin/prints.o \
+bin/solver.o bin/ten_clique_worker.o bin/tuples.o bin/network.o
 
 all: $(EXECUTABLES)
 
-clique_counter: bin/clique_counter.o
-	$(CC) $(CFLAGS) -o bin/clique_counter bin/clique_counter.o
-
-tuple_worker: bin/tuple_worker.o
-	$(CC) $(CFLAGS) -o bin/tuple_worker bin/tuple_worker.o
+$(EXECUTABLES): $(USER_OBJS)
+	$(CC) $(CFLAGS) -o $(EXECUTABLES) $(USER_OBJS)
 
 bin/%.o: src/%.c  
 	$(CC) $(CFLAGS) -c src/$*.c -o bin/$*.o
