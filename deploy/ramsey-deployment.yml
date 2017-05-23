@@ -1,0 +1,16 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: ramsey-deployment
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: ramsey
+    spec:
+      containers:
+      - name: ramsey-pod
+        image: jeasterman/ramsey_main
+        ports:
+        - containerPort: 57339
