@@ -4,17 +4,20 @@ metadata:
   name: server-deployment
 spec:
   replicas: 2
-  template:
-    metadata:
-      labels:
-        app: server
     spec:
       containers:
       - name: ramsey-pod
         image: jeasterman/ramsey_main
         ports:
         - containerPort: 57339
+        metadata:
+          labels:
+            app: ramsey
+
       - name: gossip-pod
         image: jeasterman/gossip_main
         ports:
         - containerPort: 33957
+        metadata:
+          labels:
+            app: gossip
