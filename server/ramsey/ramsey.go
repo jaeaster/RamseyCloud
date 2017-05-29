@@ -26,6 +26,7 @@ type RamseyServer struct {
   matrixIsCounterExample bool
   high int
   lowestCliqueCount int
+  slaves map[string]net.Conn
 }
 
 func getGossipIP() string {
@@ -154,6 +155,39 @@ func (rs *RamseyServer) ProcessMatrixAck(conn net.Conn, body string) {
     rs.high = gossipHigh
     rs.matrix = split[1][:len(split[1])-4]
   }
+}
+
+func (rs *RamseyServer) ProcessSlaveRegister(conn net.Conn, body string) {
+  addr := strings.Split(conn.RemoteAddr().String(), ":")[0]
+  rs.slaves[addr]= conn
+  rs.Log("Registering new slave with address: %s\n", addr)
+}
+
+func (rs *RamseyServer) ProcessSlaveRequest(conn net.Conn, body string) {
+  n, _ := strconv.Atoi(strings.Split(body, "\n")[0])
+  slaves := make([]string, 0, 10)
+  resp := fmt.Sprintf("%d\n%d\n", server.SLAVE_ACK, n)
+  for i := 0; i < n; i++ {
+    // Get n random slaves
+    for addr := range rs.slaves {
+      slaves = append(slaves,addr) 
+      resp += addr + "\n"   
+      break
+    }
+  }
+  // Send slaves
+  resp += "END\n"
+  conn.Write([]byte(resp))
+  // Deregister slaves
+  for _, slave := range slaves {
+    delete(rs.slaves, slave)
+  }
+}
+
+func (rs *RamseyServer) ProcessSlaveUnregister(conn net.Conn, body string) {
+  addr := strings.Split(conn.RemoteAddr().String(), ":")[0]
+  delete(rs.slaves, addr)
+  rs.Log("Unregistering slave with address: %s\n", addr)
 }
 
 func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {

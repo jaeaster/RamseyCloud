@@ -2,7 +2,8 @@ package gossip
 
 import (
   "net"
-  "net/http"
+  // "net/http"
+  "net/smtp"
   "fmt"
   "strings"
   "strconv"
@@ -41,11 +42,6 @@ func New(
  prefix string) *GossipServer {
   file, err := os.OpenFile(LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
   server.CheckError(err)
-  resp, err := http.Get("https://google.com")
-  if err != nil {
-    server.CheckError(err)
-  }
-  defer resp.Body.Close()
   buck := s3util.NewBucket(awsCredFile, awsProfile, awsRegion)
   matrix, high := buck.FindHighestMatrix(bucket, prefix)
   return &GossipServer{
@@ -113,19 +109,15 @@ func (gs *GossipServer) ProcessSuccess(conn net.Conn, body string) {
   split := strings.SplitN(body, "\n", 2)
   n, matrix := split[0], split[1][:len(split[1])-4]
   nInt, _ := strconv.Atoi(n)
-  if(nInt >= gs.high) {
-    if(gs.GossipSuccessConsensus(nInt, matrix)) {
-      gs.matrix = matrix
-      gs.matrixIsCounterExample = true
-      gs.high = nInt
+  if nInt >= gs.high {
+    if gs.GossipSuccessConsensus(nInt, matrix) {
       gs.Log("Found new Counter example!\n")
       gs.Log(gs.matrix)
       gs.storeMatrix([]byte(gs.matrix), n)
-      for _, client := range gs.clients {
-        gs.SendMatrixACK(client)
-      }
-    } else {
-      // do something?
+    }
+    gs.Log("Updating Ramsey Servers with up to Date Counterexample")
+    for _, client := range gs.clients {
+      gs.SendMatrixACK(client)
     }
   } else {
     gs.SendMatrixACK(conn)
@@ -177,6 +169,21 @@ func (gs *GossipServer) ProcessMatrixAck(conn net.Conn, body string) {
   return
 }
 
+func (gs *GossipServer) ProcessSlaveRegister(conn net.Conn, body string) {
+  // noop
+  return
+}
+
+func (gs *GossipServer) ProcessSlaveRequest(conn net.Conn, body string) {
+  // noop
+  return
+}
+
+func (gs *GossipServer) ProcessSlaveUnregister(conn net.Conn, body string) {
+  // noop
+  return
+}
+
 func (gs *GossipServer) SendMatrixACK(conn net.Conn) {
   var n int
   if gs.matrixIsCounterExample {
@@ -204,5 +211,38 @@ func (gs *GossipServer) GossipImprovedConsensus(n int, cliques int, matrix strin
 }
 
 func (gs *GossipServer) GossipSuccessConsensus(n int, matrix string) bool {
-  return true
+  highMatrix, high := gs.GossipQueryHighest()
+  gs.matrixIsCounterExample = true
+  if n > high {
+    gs.matrix = matrix
+    gs.high = n
+    return true
+  } else {
+    gs.matrix = highMatrix
+    gs.high = high
+    return false
+  }
+}
+
+func (gs *GossipServer) GossipQueryHighest() (matrix string, n int) {
+  return gs.buck.FindHighestMatrix(gs.buckName, gs.buckPrefix)
+}
+
+func sendemail(n int) {
+  gmail_user := "ramseyrikk@gmail.com"
+  gmail_pwd := "bangiversary"
+  hostname := "smtp.gmail.com"
+  port := ":587"
+  subject := "Cloud and clear"
+  recipients := []string{
+    "jonathaneasterman@gmail.com",
+    "oliver.damsgaard@gmail.com",
+    "kristoffer.alvern@hotmail.com",
+  }
+  auth := smtp.PlainAuth("", gmail_user, gmail_pwd, hostname)
+  msg := fmt.Sprintf("New matrix of size %d found!", n)
+  err := smtp.SendMail(hostname+port, auth, gmail_user, recipients, []byte(msg))
+  if err != nil {
+    log.Fatal(err)
+  }
 }

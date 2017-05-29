@@ -21,10 +21,14 @@ const (
   RAMSEY_REGISTER
   MATRIX_ACK
   SERVER_LIST_ACK
+  SLAVE_REGISTER
+  SLAVE_REQUEST
+  SLAVE_ACK
+  SLAVE_UNREGISTER
 )
 
 const (
-  MAX_CLIENTS = 1000
+  MAX_CLIENTS = 10000
 )
 
 var GossipIP string = os.Getenv("GOSSIP_SERVICE_SERVICE_HOST")
@@ -45,6 +49,9 @@ type Server interface {
   ProcessClientRegister(net.Conn)
   ProcessRamseyRegister(net.Conn)
   ProcessMatrixAck(net.Conn, string)
+  ProcessSlaveRegister(net.Conn, string)
+  ProcessSlaveRequest(net.Conn, string)
+  ProcessSlaveUnregister(net.Conn, string)
   SendMatrixACK(net.Conn)
 }
 
@@ -97,6 +104,10 @@ func ProcessConn(s Server, conn net.Conn) {
       s.ProcessRamseyRegister(conn)
     case MATRIX_ACK:
       s.ProcessMatrixAck(conn, body)
+    case SLAVE_REGISTER:
+      s.ProcessSlaveRegister(conn, body)
+    case SLAVE_REQUEST:
+      s.ProcessSlaveRequest(conn, body)
     default:
       content := scanner.Text()
       conn.Write([]byte("Content received: " + content + "\n"))

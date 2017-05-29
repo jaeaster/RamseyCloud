@@ -15,19 +15,48 @@ pthread_t tid[N_TUPLES];
 int subM[N_TUPLES][M_SIZE][M_SIZE];
 short tuples[N_TUPLES][2];
 short subSet[N_TUPLES][M_SIZE];
-Tuple* result;
+Tuple* resultTuple;
+TupleClique* resultTupleClique;
 int mSize;
 
 void initTupleChecker(){
     for(int i=0; i < N_TUPLES; i++) threadArg[i] = i;
 }
 
-Tuple* allocateTupleArray(int size){
-    return malloc(sizeof(Tuple)*size);
+Tuple* allocateTupleArray(){
+    return malloc(sizeof(Tuple)*N_TUPLES);
 }
+
+
+/* --------------------TUPLE-CLIQUE---------------- */
+
+TupleClique *allocateTupleCliques(){
+    TupleClique* tupleCliques = malloc(sizeof(TupleClique)*N_TUPLES);
+    for(int i=0; i < N_TUPLES; i++){
+        initCliqueList(&tupleCliques[i].cliques, SUB_TEN_SIZE);
+    }
+    return tupleCliques;
+}
+void resetTupleCliques(TupleClique *tupleCliques){
+    for(int i=0; i < N_TUPLES; i++){
+        resetCliqueList(&tupleCliques[i].cliques);
+    }
+}
+void freeTupleCliques(TupleClique *tupleCliques){
+    for(int i=0; i < N_TUPLES; i++){
+        freeCliqueList(&tupleCliques[i].cliques);
+    }
+    free(tupleCliques);
+}
+
+/* ---------------LOGIC--------------------*/
 
 int tupleCmp(const void * a, const void * b){
     return ((Tuple*)a)->cost - ((Tuple*)b)->cost;
+}
+
+int tupleCliqueCmp(const void *a, const void *b){
+    return ((TupleClique*) a)->cliques.count - ((TupleClique*) b)->cliques.count;
 }
 
 bool stillAClique2(){
@@ -60,7 +89,6 @@ void convertSubCliques(int k, Cliques *subCliqueInfo){
 
 int fillSubMatrix2(int k, short nodeA, short nodeB){
     int invColor = (matrix[nodeA][nodeB] + 1) % 2;
-
 
     //CREATING SUBSET IN ASCENDING ORDER:
 
@@ -95,7 +123,6 @@ int fillSubMatrix2(int k, short nodeA, short nodeB){
 
 
     //CREATING MATRIX FROM SUBSET:
-
     for(int i = 0; i < c - 1; i++){
         for(int j = i + 1; j < c; j++){
             subM[k][i][j] = matrix[subSet[k][i]][subSet[k][j]];
@@ -103,7 +130,7 @@ int fillSubMatrix2(int k, short nodeA, short nodeB){
         }
     }
 
-    // INVERTING EDGE
+    //INVERTING EDGE
     subM[k][ca][cb] = invColor;
     subM[k][cb][ca] = invColor;
 
@@ -123,9 +150,24 @@ void *analTuple(void *arg){
     short nodeA = tuples[k][0];
     short nodeB = tuples[k][1];
     int subSize = fillSubMatrix2(k, nodeA, nodeB);
-    result[k].a = nodeA;
-    result[k].b = nodeB;
-    result[k].cost = cliqueCount10(subSize, subM[k]);
+    resultTuple[k].a = nodeA;
+    resultTuple[k].b = nodeB;
+    resultTuple[k].cost = cliqueCount10(subSize, subM[k]);
+    return NULL;
+}
+
+void *analTupleCliques(void *arg){
+    const int k = *((int*) arg);
+    short nodeA = tuples[k][0];
+    short nodeB = tuples[k][1];
+    resultTupleClique[k].a = nodeA;
+    resultTupleClique[k].b = nodeB;
+
+    Cliques *pClique = &resultTupleClique[k].cliques;
+    int subSize = fillSubMatrix2(k, nodeA, nodeB);
+    cliqueCountAll(subSize, subM[k], pClique);
+    convertSubCliques(k, pClique);
+
     return NULL;
 }
 
@@ -133,11 +175,21 @@ void *analTuple(void *arg){
 void analClique(int size, Tuple* tupleArray, short* clique){
     mSize = size;
     fillTuples2(clique);
-    result = tupleArray;
-    for(int i=0; i < N_TUPLES; i++){
+    resultTuple = tupleArray;
+    for(int i=0; i < N_TUPLES; i++)
         pthread_create(&tid[i], NULL, analTuple, (void*)(threadArg+i));
-    }
     for(int i=0; i < N_TUPLES; i++)
         pthread_join(tid[i], NULL);
-    qsort(result, N_TUPLES, sizeof(Tuple), tupleCmp);
+    qsort(resultTuple, N_TUPLES, sizeof(Tuple), tupleCmp);
+}
+
+void analCliqueFull(int size, TupleClique* tupleCliques, short *clique){
+    mSize = size;
+    fillTuples2(clique);
+    resultTupleClique = tupleCliques;
+    for(int i=0; i < N_TUPLES; i++)
+        pthread_create(&tid[i], NULL, analTupleCliques, (void*)(threadArg+i));
+    for(int i=0; i < N_TUPLES; i++)
+        pthread_join(tid[i], NULL);
+    qsort(resultTupleClique, N_TUPLES, sizeof(TupleClique), tupleCliqueCmp);
 }
