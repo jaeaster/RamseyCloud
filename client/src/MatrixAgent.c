@@ -3,12 +3,14 @@
 //
 
 #include <stdio.h>
+#include <pthread.h>
 #include "../include/MatrixAgent.h"
 #include "../include/time.h"
 #include "../include/CliqueAnalyzer.h"
 #include "../include/io.h"
 #include "../include/prints.h"
 #include "../include/Actions.h"
+
 
 bool solveAll(Cliques *cliques, short depth, int maxDepth, int maxWidth);
 
@@ -59,11 +61,12 @@ TupleClique* tryToClean(int size, short* clique, short depth){
 //}
 //
 ////If computer has a list of slaves use this one.
+
 bool solveDirtyCliqueNetwork(TupleClique *tuples, short depth, int maxDepth, int maxWidth){
     SlaveSolution solution;
     initSlaveSolution(&solution);
     int slavefds[NUM_SLAVES];
-    for(int i = 0; i < NUM_SLAVES; i++){
+    for(int i = 0; i < NUM_SLAVES; i++) {
         slavefds[i] = startSlave(i, &tuples[i], parents, maxDepth, maxWidth);
     }
     waitForSlaveSolution(&solution);

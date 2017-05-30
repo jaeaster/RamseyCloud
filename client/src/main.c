@@ -22,8 +22,9 @@ void slaveInit(TupleClique *tc, int *maxDepth, int *maxWidth) {
     registerSlave(sockfd);
     // Wait for a master to contact it
     int masterfd = listenForStartMessage(tc, maxDepth, maxWidth);
-    // tc, maxdepth, maxwidth now have correct values
+    // tc, parents, maxdepth, maxwidth now have correct values
     // Start working
+    
 }
 
 void masterInit() {

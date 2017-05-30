@@ -100,14 +100,12 @@ func (rs *RamseyServer) ProcessSuccess(conn net.Conn, body string) {
   n := split[0]
   nInt, _ := strconv.Atoi(n)
   if(nInt >= rs.high) {
-    rs.matrix = split[1][:len(split[1])-4]
-    rs.matrixIsCounterExample = true
-    rs.high = nInt
-    rs.Log("Found new Counter example!\n")
+    rs.Log("Received new counter example from client\n")
     rs.Log(rs.matrix)
-    for _, client := range rs.clients {
-      rs.SendMatrixACK(client)
-    }
+    matrix := split[1][:len(split[1])-4]
+    msg := fmt.Sprintf("%d\n%d\n%s\nEND\n", server.SUCCESS, nInt, matrix)
+    rs.gossipConn.write([]byte(msg))
+    rs.Log("Waiting for Gossip Server to verify and reach consensus")
   } else {
     rs.SendMatrixACK(conn)
   }
@@ -136,6 +134,14 @@ func (rs *RamseyServer) ProcessStateQuery(conn net.Conn) {
   rs.SendMatrixACK(conn)
 }
 
+func (rs *RamseyServer) ProcessStateSync(conn net.Conn, body string) {
+  split := strings.SplitN(body, "\n", 2)
+  syncType, data = split[0], split[1]
+  if syncType == "SLAVE" {
+    rs.slaves[data] = nil
+  }
+}
+
 func (rs *RamseyServer) ProcessClientRegister(conn net.Conn) {
   // noop
   return
@@ -154,16 +160,21 @@ func (rs *RamseyServer) ProcessMatrixAck(conn net.Conn, body string) {
   if rs.high <= gossipHigh {
     rs.high = gossipHigh
     rs.matrix = split[1][:len(split[1])-4]
+    rs.matrixIsCounterExample = true
+    for _, client := range rs.clients {
+      rs.SendMatrixACK(client)
+    }
   }
 }
 
 func (rs *RamseyServer) ProcessSlaveRegister(conn net.Conn, body string) {
   addr := strings.Split(conn.RemoteAddr().String(), ":")[0]
-  rs.slaves[addr]= conn
+  rs.slaves[addr] = conn
   rs.Log("Registering new slave with address: %s\n", addr)
 }
 
 func (rs *RamseyServer) ProcessSlaveRequest(conn net.Conn, body string) {
+  rs.Log("Processing Slave Request\n")
   n, _ := strconv.Atoi(strings.Split(body, "\n")[0])
   slaves := make([]string, 0, 10)
   resp := fmt.Sprintf("%d\n%d\n", server.SLAVE_ACK, n)
@@ -175,13 +186,13 @@ func (rs *RamseyServer) ProcessSlaveRequest(conn net.Conn, body string) {
       break
     }
   }
-  // Send slaves
   resp += "END\n"
   conn.Write([]byte(resp))
-  // Deregister slaves
+  rs.Log("Sent response:\n%s", resp)
   for _, slave := range slaves {
     delete(rs.slaves, slave)
   }
+  rs.Log("Unregistered slaves")
 }
 
 func (rs *RamseyServer) ProcessSlaveUnregister(conn net.Conn, body string) {
@@ -203,23 +214,23 @@ func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {
 
 func (rs *RamseyServer) RegisterWithGossip() {
   gossipIP := getGossipIP()
-  fmt.Printf("Connecting to gossip at %s\n", gossipIP)
+  rs.Log("Connecting to gossip at %s\n", gossipIP)
   conn, err := net.Dial("tcp", gossipIP)
   for err != nil {
-    fmt.Printf("Error connecting to gossip: %v\n", err)
-    fmt.Printf("Reconnecting to gossip\n")
+    rs.Log("Error connecting to gossip: %v\n", err)
+    rs.Log("Reconnecting to gossip\n")
     gossipIP := getGossipIP()
     conn, err = net.Dial("tcp", gossipIP)
   }
-  fmt.Printf("Connected to gossip!\n")
+  rs.Log("Connected to gossip!\n")
   rs.gossipConn = conn
-  fmt.Fprintf(conn, "%s\n%s\nEND\n", server.RAMSEY_REGISTER, rs.GetIP())
+  fmt.Fprintf(conn, "%d\n%s\nEND\n", server.RAMSEY_REGISTER, rs.GetIP())
   scanner := bufio.NewScanner(conn)
   resp, closed := server.RecvMsg(scanner)
   if closed {
     fmt.Println("Gossip down!")
   }
   split := strings.SplitN(resp, "\n", 2)
-  fmt.Printf("Processing Matrix\n")
+  rs.Log("Processing Matrix\n")
   rs.ProcessMatrixAck(conn, split[1])
 }

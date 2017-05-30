@@ -59,15 +59,16 @@ typedef struct {
 
 
 //Pointer to the tupleClique to solve, pointer to the start of parent array.
+int startSlave(int tupleID, TupleClique *tupleClique, Cliques* parents, int maxWidth, int maxDepth);
 int registerSlave(int sockfd);
 void requestSlaves(int sockfd, int n);
 void unregisterSlave();
 int listenForStartMessage(TupleClique *tc, int *maxDepth, int *maxWidth);
-int startSlave(int tupleID, TupleClique *tupleClique, Cliques* parents, int maxWidth, int maxDepth);
 void waitForSlaveSolution(SlaveSolution *solution);
 
 void initSlaveSolution(SlaveSolution *tupleList);
 void freeSlaveSolution(SlaveSolution *tupleList);
 
+void sendRollback();
 
 #endif

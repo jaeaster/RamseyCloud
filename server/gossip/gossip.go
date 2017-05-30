@@ -154,6 +154,21 @@ func (gs *GossipServer) ProcessStateQuery(conn net.Conn) {
   gs.SendMatrixACK(conn)
 }
 
+func (gs *GossipServer) ProcessStateSync(conn net.Conn, body string) {
+  split := strings.SplitN(body, "\n", 2)
+  syncType, data := split[0], split[1]
+  if syncType == "MATRIX" {
+    split = strings.SplitN(data, "\n", 2)
+    n, err := strconv.Atoi(split[0])
+    matrix := split[1][:len(split[1])-4]
+    if n, err := strconv.Atoi(data[0]); n > gs.high {
+      gs.matrix = matrix
+      gs.high = n
+      gs.matrixIsCounterExample = true
+    }
+  }
+}
+
 func (gs *GossipServer) ProcessClientRegister(conn net.Conn) {
   gs.SendServerList(conn)
 }
@@ -233,15 +248,16 @@ func sendemail(n int) {
   gmail_pwd := "bangiversary"
   hostname := "smtp.gmail.com"
   port := ":587"
-  subject := "Cloud and clear"
   recipients := []string{
     "jonathaneasterman@gmail.com",
     "oliver.damsgaard@gmail.com",
     "kristoffer.alvern@hotmail.com",
   }
   auth := smtp.PlainAuth("", gmail_user, gmail_pwd, hostname)
-  msg := fmt.Sprintf("New matrix of size %d found!", n)
-  err := smtp.SendMail(hostname+port, auth, gmail_user, recipients, []byte(msg))
+  msg := []byte("To: Cloud Nomas\r\n" +
+          "Subject: New Counterexample\r\n\r\n" +
+          "New matrix of size " + strconv.Itoa(n) + " found!\r\n")
+  err := smtp.SendMail(hostname+port, auth, gmail_user, recipients, msg)
   if err != nil {
     log.Fatal(err)
   }

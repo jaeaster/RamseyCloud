@@ -25,6 +25,7 @@ const (
   SLAVE_REQUEST
   SLAVE_ACK
   SLAVE_UNREGISTER
+  STATE_SYNC
 )
 
 const (
@@ -46,6 +47,7 @@ type Server interface {
   ProcessSuccess(net.Conn, string)
   ProcessImprovement(net.Conn, string)
   ProcessStateQuery(net.Conn)
+  ProcessStateSync(net.Conn, string)
   ProcessClientRegister(net.Conn)
   ProcessRamseyRegister(net.Conn)
   ProcessMatrixAck(net.Conn, string)
@@ -108,6 +110,8 @@ func ProcessConn(s Server, conn net.Conn) {
       s.ProcessSlaveRegister(conn, body)
     case SLAVE_REQUEST:
       s.ProcessSlaveRequest(conn, body)
+    case STATE_SYNC:
+      s.ProcessStateSync(conn, body)
     default:
       content := scanner.Text()
       conn.Write([]byte("Content received: " + content + "\n"))
