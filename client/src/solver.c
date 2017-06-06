@@ -6,7 +6,6 @@
 #include <time.h>
 #include <stdio.h>
 #include "../include/cliqueCounter.h"
-#include "../include/MatrixAgent2.h"
 #include "../include/CliqueAnalyzer.h"
 #include "../include/io.h"
 #include "../include/prints.h"

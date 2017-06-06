@@ -28,10 +28,16 @@ _testmain.go
 *.prof
 
 main
+RamseyC
 ramsey_main/ramsey_main
 gossip_main/gossip_main
-a.out
-tuple_worker
-clique_counter
+bin
+results
+
+error_log
+ramsey_log
+gossip_log
+log
+
 .DS*
 *.pyc

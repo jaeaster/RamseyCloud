@@ -25,7 +25,7 @@ typedef struct {
     ShortList* data;
 } PrevDirty;
 
-//TupleList:
+//SlaveSolution:
 void initTupleList(ShortList *tupleList, int tupleInitCapacity);
 void addToTupleList(ShortList *list, short a, short b, short cost);
 void resetTupleList(ShortList *tupleList);

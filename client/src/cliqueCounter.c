@@ -15,7 +15,7 @@ void initCliqueList(Cliques *info, int capacity){
 void resetCliqueList(Cliques *info){
     info->count = 0;
 }
-void freeInfo(Cliques *info){
+void freeCliqueList(Cliques *info){
     for(int i = 0; i < info->ten_capacity; i++){
         free(info->data[i]);
         info->data[i] = NULL;

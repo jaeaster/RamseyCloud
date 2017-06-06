@@ -1,9 +1,9 @@
 CC = gcc
 CFLAGS = -g -Wall -pthread
 EXECUTABLES = RamseyC
-USER_OBJS = bin/Actions.o bin/CliqueAnalyzer.o bin/MatrixAgent2.o \
+USER_OBJS = bin/Actions.o bin/CliqueAnalyzer.o bin/MatrixAgent.o \
 bin/bron.o bin/cliqueCounter.o bin/debug.o bin/io.o bin/main.o bin/prints.o \
-bin/solver.o bin/ten_clique_worker.o bin/tuples.o bin/network.o
+bin/ten_clique_worker.o bin/tuples.o bin/network.o
 
 all: $(EXECUTABLES)
 

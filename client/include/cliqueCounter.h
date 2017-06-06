@@ -12,7 +12,7 @@ typedef struct {
 
 void initCliqueList(Cliques *info, int capacity);
 void resetCliqueList(Cliques *info);
-void freeInfo(Cliques *info);
+void freeCliqueList(Cliques *info);
 void prepareToAdd(Cliques *info);
 short* getLast(Cliques *info);
 

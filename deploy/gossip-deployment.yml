@@ -1,0 +1,16 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: gossip-deployment
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: gossip
+    spec:
+      containers:
+      - name: gossip-pod
+        image: jeasterman/gossip_main
+        ports:
+        - containerPort: 33957

@@ -15,20 +15,23 @@ typedef struct{
 } Tuple;
 
 typedef struct{
-    int cap;
-    int count;
-    Tuple *data;
-} TupleList;
+    short a;
+    short b;
+    Cliques cliques;
+} TupleClique;
 
-Tuple* allocateTupleArray(int size);
-
-void initTupleList(TupleList *list, int capacity);
-void preAddTupleList(TupleList *list);
-void freeTupleList(TupleList *list);
+Tuple* allocateTupleArray();
 
 void initTupleChecker();
 void analClique(int size, Tuple* tupleArray, short* clique);
 void findSubCliques(int size, Cliques *subCliqueInfo, Tuple tuple);
+
+void analCliqueFull(int size, TupleClique* tupleCliques, short *clique);
+
+TupleClique *allocateTupleCliques();
+void resetTupleCliques(TupleClique *tupleClique);
+void freeTupleCliques(TupleClique *tupleCliques);
+
 
 
 #endif //RAMSEYC_CLIQUEANALYZER_H
