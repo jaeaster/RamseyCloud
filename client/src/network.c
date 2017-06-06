@@ -1,23 +1,25 @@
 #include "../include/network.h"
 
 void init_conn() {
+  printf("beginning init_conn\n");
   int errno;
   struct sockaddr_in host;
 
   host.sin_family = AF_INET;
   host.sin_port = htons(atoi(PORT));
   inet_aton(HOSTNAME, (struct in_addr *)&(host.sin_addr.s_addr));
-
+  printf("inet_aton done\n");
   // Open socket on client
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  printf("socket done\n");
   if(sockfd < 0) {
     perror("internal error creating socket\n");
     exit(0);
   }
-
+  printf("Establishing connection with server\n");
   // Establish connection with server
   errno = connect(sockfd, (struct sockaddr *)&host, sizeof(struct sockaddr_in));
-  
+  printf("Connection established\n");
   if(errno < 0) {
     perror("internal error connecting to server\n");
     exit(0);
@@ -113,22 +115,28 @@ int request_matrix() {
   float clockSpeed = get_cpu_clock_speed();
   MessageType mt = STATE_QUERY;
   sprintf(msg, "%d\n%4.0f\nEND\n",(int)mt, clockSpeed);
+  printf("Sending req matrix %s\n", msg);
   send(sockfd, msg, 12, 0);
   return recv_matrix();
 }
 
 void recv_payload(char *payload) {
-  int nBytes, size;
+  int nBytes;
+  char *tmp = payload;
   char buf[MAX_RECV];
-  size = 0;
   printf("Receiving Payload from Server\n");
   while((nBytes = recv(sockfd, buf, MAX_RECV, 0)) > 0) {
-    memcpy(payload, buf, nBytes);
+    memcpy(tmp, buf, nBytes);
+    tmp += nBytes;
+    if(strstr(buf, "END") != NULL) {
+      break;
+    }
     memset(buf, 0, MAX_RECV);
-    size += nBytes;
   }
   printf("Received Payload from Server\n");
-  payload[size] = '\0';
+  *tmp = '\0';
+  printf("%s\n", payload);
+  
 }
 
 float get_cpu_clock_speed() {

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -pthread
 EXECUTABLES = RamseyC
 USER_OBJS = bin/Actions.o bin/CliqueAnalyzer.o bin/MatrixAgent2.o \
 bin/bron.o bin/cliqueCounter.o bin/debug.o bin/io.o bin/main.o bin/prints.o \
