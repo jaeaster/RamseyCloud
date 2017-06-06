@@ -18,7 +18,7 @@ const (
 
 func main() {
   gs := gossip.New(
-    "/cs/student/jdogg5566/.aws/credentials",
+    "/home" + AWS_CREDS_FILE,
     AWS_PROFILE,
     REGION,
     PORT,

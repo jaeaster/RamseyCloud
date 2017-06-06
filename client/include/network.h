@@ -4,9 +4,8 @@
 #define MSS 65535
 #define MAX_RECV 1024
 #define MAX_PAYLOAD 640000
-// #define HOSTNAME "100.111.111.111"
-#define HOSTNAME "128.111.43.14"
-#define PORT "57339"
+#define HOSTNAME "100.111.111.111"
+#define PORT "80"
 #define NEWLN "\n"
 #define ENDLN "END\n"
 #define NETWORK_DOWN 0
