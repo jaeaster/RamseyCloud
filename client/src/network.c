@@ -111,6 +111,7 @@ int recv_matrix(int sockfd) {
 int request_matrix(int sockfd) {
   char msg[12];
   float clockSpeed = get_cpu_clock_speed();
+  printf("Reqesuting matrix\n");
   MessageType mt = STATE_QUERY;
   sprintf(msg, "%d\n%4.0f\nEND\n",(int)mt, clockSpeed);
   send(sockfd, msg, 12, 0);
