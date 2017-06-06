@@ -4,6 +4,7 @@ import(
   "net"
   "fmt"
   "strings"
+  "bufio"
   "strconv"
   "os"
   "log"
@@ -94,8 +95,8 @@ func (rs *RamseyServer) DecrementClientChannel() {
 }
 
 func (rs *RamseyServer) Log(message string, a ...interface{}) {
-  // rs.log.Printf(message, a...)
-  fmt.Printf(message, a...)
+  rs.log.Printf(message, a...)
+  // fmt.Printf(message, a...)
 }
 
 func (rs *RamseyServer) ProcessSuccess(conn net.Conn, body string) {
@@ -172,24 +173,24 @@ func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {
 }
 
 func (rs *RamseyServer) RegisterWithGossip() {
-  // gossipIP := getGossipIP()
-  // fmt.Printf("Connecting to gossip at %s\n", gossipIP)
-  // conn, err := net.Dial("tcp", gossipIP)
-  // for err != nil {
-  //   fmt.Printf("Error connecting to gossip: %v\n", err)
-  //   fmt.Printf("Reconnecting to gossip\n")
-  //   gossipIP := getGossipIP()
-  //   conn, err = net.Dial("tcp", gossipIP)
-  // }
-  // fmt.Printf("Connected to gossip!\n")
-  // rs.gossipConn = conn
-  // fmt.Fprintf(conn, "%s\n%s\nEND\n", server.RAMSEY_REGISTER, rs.GetIP())
-  // scanner := bufio.NewScanner(conn)
-  // resp, closed := server.RecvMsg(scanner)
-  // if closed {
-  //   fmt.Println("Gossip down!")
-  // }
-  // split := strings.SplitN(resp, "\n", 2)
-  // fmt.Printf("Processing Matrix\n")
-  // rs.ProcessMatrixAck(conn, split[1])
+  gossipIP := getGossipIP()
+  fmt.Printf("Connecting to gossip at %s\n", gossipIP)
+  conn, err := net.Dial("tcp", gossipIP)
+  for err != nil {
+    fmt.Printf("Error connecting to gossip: %v\n", err)
+    fmt.Printf("Reconnecting to gossip\n")
+    gossipIP := getGossipIP()
+    conn, err = net.Dial("tcp", gossipIP)
+  }
+  fmt.Printf("Connected to gossip!\n")
+  rs.gossipConn = conn
+  fmt.Fprintf(conn, "%s\n%s\nEND\n", server.RAMSEY_REGISTER, rs.GetIP())
+  scanner := bufio.NewScanner(conn)
+  resp, closed := server.RecvMsg(scanner)
+  if closed {
+    fmt.Println("Gossip down!")
+  }
+  split := strings.SplitN(resp, "\n", 2)
+  fmt.Printf("Processing Matrix\n")
+  rs.ProcessMatrixAck(conn, split[1])
 }

@@ -1,0 +1,4 @@
+LOG: 2017/06/05 20:40:04 gossip.go:107: Launching server at 128.111.43.1433957
+LOG: 2017/06/05 20:40:08 gossip.go:107: Waiting for message from 127.0.0.1:43088
+LOG: 2017/06/05 20:40:08 gossip.go:107: Message Type Received: %!s(int=4)
+LOG: 2017/06/05 20:40:08 gossip.go:107: Waiting for message from 127.0.0.1:43088

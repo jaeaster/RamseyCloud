@@ -17,7 +17,7 @@ const (
 )
 
 type GossipServer struct {
-  clients map[string]ClientInfo
+  clients map[string]server.ClientInfo
   serverList []string
   ip string
   port string
@@ -41,15 +41,10 @@ func New(
  prefix string) *GossipServer {
   file, err := os.OpenFile(LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
   server.CheckError(err)
-  resp, err := http.Get("https://google.com")
-  if err != nil {
-    server.CheckError(err)
-  }
-  defer resp.Body.Close()
   buck := s3util.NewBucket(awsCredFile, awsProfile, awsRegion)
   matrix, high := buck.FindHighestMatrix(bucket, prefix)
   return &GossipServer{
-    clients: make(map[string]ClientInfo),
+    clients: make(map[string]server.ClientInfo),
     serverList: make([]string, 0),
     port: port,
     log: log.New(file, "LOG: ", log.Ldate|log.Ltime|log.Lshortfile),
@@ -84,12 +79,12 @@ func (gs *GossipServer) GetPort() string {
   return gs.port
 }
 
-func (gs *GossipServer) GetClients() map[string]ClientInfo {
+func (gs *GossipServer) GetClients() map[string]server.ClientInfo {
   return gs.clients
 }
 
 func (gs *GossipServer) SetClient(ipPort string, conn net.Conn, clockSpeed int) {
-  gs.clients[ipPort] = ClientInfo {
+  gs.clients[ipPort] = server.ClientInfo {
     conn,
     clockSpeed,
     time.Now().Unix(),
@@ -109,8 +104,8 @@ func (gs *GossipServer) DecrementClientChannel() {
 }
 
 func (gs *GossipServer) Log(message string, a ...interface{}) {
-  // gs.log.Printf(message, a...)
-  fmt.Printf(message, a...)
+  gs.log.Printf(message, a...)
+  // fmt.Printf(message, a...)
 }
 
 func (gs *GossipServer) ProcessSuccess(conn net.Conn, body string) {
@@ -126,7 +121,7 @@ func (gs *GossipServer) ProcessSuccess(conn net.Conn, body string) {
       gs.Log(gs.matrix)
       gs.storeMatrix([]byte(gs.matrix), n)
       for _, client := range gs.clients {
-        gs.SendMatrixACK(client.conn)
+        gs.SendMatrixACK(client.Conn)
       }
     } else {
       // do something?
@@ -152,7 +147,7 @@ func (gs *GossipServer) ProcessImprovement(conn net.Conn, body string) {
       gs.lowestCliqueCount = numCliques
       gs.Log("Found better matrix with clique count: %d\n", numCliques)
       for _, client := range gs.clients {
-        gs.SendMatrixACK(client.conn)
+        gs.SendMatrixACK(client.Conn)
       }
     } else {
       // do something?
@@ -199,7 +194,7 @@ func (gs *GossipServer) SendServerList(conn net.Conn) {
 
 func (gs *GossipServer) RegisterRamsey(conn net.Conn) {
   ipPort := conn.RemoteAddr().String()
-  gs.setClient(ipPort, conn, 0)
+  gs.SetClient(ipPort, conn, 0)
   gs.serverList = append(gs.serverList, ipPort)
 }
 

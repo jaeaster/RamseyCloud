@@ -93,7 +93,10 @@ func ProcessConn(s Server, conn net.Conn) {
     case IMPROVEMENT:
       s.ProcessImprovement(conn, body)
     case STATE_QUERY:
-      clockSpeed, _ := strconv.Atoi(strings.Split(body, "\n")[0]);
+      clockSpeed, err := strconv.Atoi(strings.Split(body, "\n")[0]);
+      if err != nil {
+        clockSpeed = 0
+      }
       s.SetClient(ipPort, conn, clockSpeed)
       s.Log("New connection from: %s\n", ipPort)
       s.Log("Total active clients: %d\n", len(s.GetClients()))

@@ -16,3 +16,4 @@ LOG: 2017/05/20 19:21:00 ramsey.go:92: Sending STATE_QUERY Response
 LOG: 2017/05/20 19:21:00 ramsey.go:92: Waiting for message from 127.0.0.1:60208
 LOG: 2017/05/20 19:28:58 ramsey.go:92: Closing connection to 127.0.0.1:60208
 LOG: 2017/05/20 19:28:58 ramsey.go:92: Total active clients: 0
+LOG: 2017/06/05 20:40:08 ramsey.go:98: Launching server at 128.111.43.1457339
