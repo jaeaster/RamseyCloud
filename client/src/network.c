@@ -109,10 +109,11 @@ int recv_matrix() {
 }
 
 int request_matrix() {
-  char msg[7];
+  char msg[12];
+  float clockSpeed = get_cpu_clock_speed();
   MessageType mt = STATE_QUERY;
-  sprintf(msg, "%d\nEND\n", (int)mt);
-  send(sockfd, msg, 7);
+  sprintf(msg, "%d\n%4.0f\nEND\n",(int)mt, clockSpeed);
+  send(sockfd, msg, 12, 0);
   return recv_matrix();
 }
 
@@ -128,4 +129,26 @@ void recv_payload(char *payload) {
   }
   printf("Received Payload from Server\n");
   payload[size] = '\0';
+}
+
+float get_cpu_clock_speed() {
+  FILE* fp;
+  char buffer[10000];
+  size_t bytes_read;
+  char* match;
+  float clock_speed;
+
+  fp = fopen("/proc/cpuinfo", "r");
+  bytes_read = fread(buffer, 1, sizeof(buffer), fp);
+  fclose(fp);
+  if(bytes_read == 0 || bytes_read == sizeof(buffer)) {
+    return 0;
+  }
+  buffer[bytes_read] = '\0';
+  match = strstr(buffer, "cpu MHz");
+  if(match == NULL) {
+  return 0;
+ }
+  sscanf(match, "cpu MHz : %f", &clock_speed);
+  return clock_speed;
 }

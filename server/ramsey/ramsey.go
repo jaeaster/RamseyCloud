@@ -3,11 +3,11 @@ package ramsey
 import(
   "net"
   "fmt"
-  "bufio"
   "strings"
   "strconv"
   "os"
   "log"
+  "time"
   "github.com/easterandjay/RamseyCloud/server"
 )
 
@@ -17,7 +17,7 @@ const (
 
 type RamseyServer struct {
   gossipConn net.Conn
-  clients map[string]net.Conn
+  clients map[string]server.ClientInfo
   ip string
   port string
   log *log.Logger
@@ -39,7 +39,7 @@ func New(port string) *RamseyServer {
   rs := &RamseyServer{
     matrixIsCounterExample: true,
     lowestCliqueCount: -1,
-    clients: make(map[string]net.Conn),
+    clients: make(map[string]server.ClientInfo),
     port: fmt.Sprintf("%s", port),
     log: log.New(file, "LOG: ", log.Ldate|log.Ltime|log.Lshortfile),
     clientChan: make(chan bool, server.MAX_CLIENTS),
@@ -69,12 +69,16 @@ func (rs *RamseyServer) GetPort() string {
   return rs.port
 }
 
-func (rs *RamseyServer) GetClients() map[string]net.Conn {
+func (rs *RamseyServer) GetClients() map[string]server.ClientInfo {
   return rs.clients
 }
 
-func (rs *RamseyServer) SetClient(ipPort string, conn net.Conn) {
-  rs.clients[ipPort] = conn
+func (rs *RamseyServer) SetClient(ipPort string, conn net.Conn, clockSpeed int) {
+  rs.clients[ipPort] = server.ClientInfo {
+    conn,
+    clockSpeed,
+    time.Now().Unix(),
+  }
 }
 
 func (rs *RamseyServer) RemoveClient(ipPort string) {
@@ -105,7 +109,7 @@ func (rs *RamseyServer) ProcessSuccess(conn net.Conn, body string) {
     rs.Log("Found new Counter example!\n")
     rs.Log(rs.matrix)
     for _, client := range rs.clients {
-      rs.SendMatrixACK(client)
+      rs.SendMatrixACK(client.Conn)
     }
   } else {
     rs.SendMatrixACK(conn)
@@ -123,7 +127,7 @@ func (rs *RamseyServer) ProcessImprovement(conn net.Conn, body string) {
     rs.lowestCliqueCount = numCliques
     rs.Log("Found better matrix with clique count: %d\n", numCliques)
     for _, client := range rs.clients {
-      rs.SendMatrixACK(client)
+      rs.SendMatrixACK(client.Conn)
     }
   } else {
     rs.SendMatrixACK(conn)
@@ -168,24 +172,24 @@ func (rs *RamseyServer) SendMatrixACK(conn net.Conn) {
 }
 
 func (rs *RamseyServer) RegisterWithGossip() {
-  gossipIP := getGossipIP()
-  fmt.Printf("Connecting to gossip at %s\n", gossipIP)
-  conn, err := net.Dial("tcp", gossipIP)
-  for err != nil {
-    fmt.Printf("Error connecting to gossip: %v\n", err)
-    fmt.Printf("Reconnecting to gossip\n")
-    gossipIP := getGossipIP()
-    conn, err = net.Dial("tcp", gossipIP)
-  }
-  fmt.Printf("Connected to gossip!\n")
-  rs.gossipConn = conn
-  fmt.Fprintf(conn, "%s\n%s\nEND\n", server.RAMSEY_REGISTER, rs.GetIP())
-  scanner := bufio.NewScanner(conn)
-  resp, closed := server.RecvMsg(scanner)
-  if closed {
-    fmt.Println("Gossip down!")
-  }
-  split := strings.SplitN(resp, "\n", 2)
-  fmt.Printf("Processing Matrix\n")
-  rs.ProcessMatrixAck(conn, split[1])
+  // gossipIP := getGossipIP()
+  // fmt.Printf("Connecting to gossip at %s\n", gossipIP)
+  // conn, err := net.Dial("tcp", gossipIP)
+  // for err != nil {
+  //   fmt.Printf("Error connecting to gossip: %v\n", err)
+  //   fmt.Printf("Reconnecting to gossip\n")
+  //   gossipIP := getGossipIP()
+  //   conn, err = net.Dial("tcp", gossipIP)
+  // }
+  // fmt.Printf("Connected to gossip!\n")
+  // rs.gossipConn = conn
+  // fmt.Fprintf(conn, "%s\n%s\nEND\n", server.RAMSEY_REGISTER, rs.GetIP())
+  // scanner := bufio.NewScanner(conn)
+  // resp, closed := server.RecvMsg(scanner)
+  // if closed {
+  //   fmt.Println("Gossip down!")
+  // }
+  // split := strings.SplitN(resp, "\n", 2)
+  // fmt.Printf("Processing Matrix\n")
+  // rs.ProcessMatrixAck(conn, split[1])
 }

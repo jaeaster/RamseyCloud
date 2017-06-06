@@ -7,6 +7,7 @@ import (
   "strconv"
   "os"
   "log"
+  "time"
   "github.com/easterandjay/RamseyCloud/s3util"
   "github.com/easterandjay/RamseyCloud/server"
 )
@@ -16,7 +17,7 @@ const (
 )
 
 type GossipServer struct {
-  clients map[string]net.Conn
+  clients map[string]ClientInfo
   serverList []string
   ip string
   port string
@@ -48,7 +49,7 @@ func New(
   buck := s3util.NewBucket(awsCredFile, awsProfile, awsRegion)
   matrix, high := buck.FindHighestMatrix(bucket, prefix)
   return &GossipServer{
-    clients: make(map[string]net.Conn),
+    clients: make(map[string]ClientInfo),
     serverList: make([]string, 0),
     port: port,
     log: log.New(file, "LOG: ", log.Ldate|log.Ltime|log.Lshortfile),
@@ -83,12 +84,16 @@ func (gs *GossipServer) GetPort() string {
   return gs.port
 }
 
-func (gs *GossipServer) GetClients() map[string]net.Conn {
+func (gs *GossipServer) GetClients() map[string]ClientInfo {
   return gs.clients
 }
 
-func (gs *GossipServer) SetClient(ipPort string, conn net.Conn) {
-  gs.clients[ipPort] = conn
+func (gs *GossipServer) SetClient(ipPort string, conn net.Conn, clockSpeed int) {
+  gs.clients[ipPort] = ClientInfo {
+    conn,
+    clockSpeed,
+    time.Now().Unix(),
+  }
 }
 
 func (gs *GossipServer) RemoveClient(ipPort string) {
@@ -121,7 +126,7 @@ func (gs *GossipServer) ProcessSuccess(conn net.Conn, body string) {
       gs.Log(gs.matrix)
       gs.storeMatrix([]byte(gs.matrix), n)
       for _, client := range gs.clients {
-        gs.SendMatrixACK(client)
+        gs.SendMatrixACK(client.conn)
       }
     } else {
       // do something?
@@ -147,7 +152,7 @@ func (gs *GossipServer) ProcessImprovement(conn net.Conn, body string) {
       gs.lowestCliqueCount = numCliques
       gs.Log("Found better matrix with clique count: %d\n", numCliques)
       for _, client := range gs.clients {
-        gs.SendMatrixACK(client)
+        gs.SendMatrixACK(client.conn)
       }
     } else {
       // do something?
@@ -194,7 +199,7 @@ func (gs *GossipServer) SendServerList(conn net.Conn) {
 
 func (gs *GossipServer) RegisterRamsey(conn net.Conn) {
   ipPort := conn.RemoteAddr().String()
-  gs.clients[ipPort] = conn
+  gs.setClient(ipPort, conn, 0)
   gs.serverList = append(gs.serverList, ipPort)
 }
 

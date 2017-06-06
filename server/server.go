@@ -6,6 +6,7 @@ import(
   "strings"
   "strconv"
   "os"
+  "time"
   "fmt"
 )
 
@@ -30,11 +31,17 @@ const (
 var GossipIP string = os.Getenv("GOSSIP_SERVICE_SERVICE_HOST")
 var GossipPort string = os.Getenv("GOSSIP_SERVICE_SERVICE_PORT")
 
+type ClientInfo struct {
+  Conn net.Conn
+  ClockSpeed int
+  StartTime int64
+}
+
 type Server interface {
   GetIP() string
   GetPort() string
-  GetClients() map[string]net.Conn
-  SetClient(string, net.Conn)
+  GetClients() map[string]ClientInfo
+  SetClient(string, net.Conn, int)
   RemoveClient(string)
   IncrementClientChannel()
   DecrementClientChannel()
@@ -61,10 +68,6 @@ func Run(s Server) {
       s.Log("Failed connection - %s\n", err.Error())
       continue
     }
-    ipPort := conn.RemoteAddr().String()
-    s.SetClient(ipPort, conn)
-    s.Log("New connection from: %s\n", ipPort)
-    s.Log("Total active clients: %d\n", len(s.GetClients()))
     go ProcessConn(s, conn)
     s.IncrementClientChannel()
   }
@@ -90,6 +93,10 @@ func ProcessConn(s Server, conn net.Conn) {
     case IMPROVEMENT:
       s.ProcessImprovement(conn, body)
     case STATE_QUERY:
+      clockSpeed, _ := strconv.Atoi(strings.Split(body, "\n")[0]);
+      s.SetClient(ipPort, conn, clockSpeed)
+      s.Log("New connection from: %s\n", ipPort)
+      s.Log("Total active clients: %d\n", len(s.GetClients()))
       s.ProcessStateQuery(conn)
     case CLIENT_REGISTER:
       s.ProcessClientRegister(conn)
@@ -106,8 +113,11 @@ func ProcessConn(s Server, conn net.Conn) {
 
 func CleanupConn(s Server, conn net.Conn) {
   ipPort := conn.RemoteAddr().String()
+  client := s.GetClients()[ipPort]
+  dur := time.Now().Unix() - client.StartTime
+  cycles := dur * int64(client.ClockSpeed)
   conn.Close()
-  s.Log("Closing connection to %s\n", ipPort)
+  s.Log("Closing connection to %s\nCPU CYCLES USED: %d000000\n", ipPort, cycles)
   s.RemoveClient(ipPort)
   s.DecrementClientChannel()
   s.Log("Total active clients: %d\n", len(s.GetClients()))

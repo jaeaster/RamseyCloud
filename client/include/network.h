@@ -8,7 +8,7 @@
 #define PORT "80"
 #define NEWLN "\n"
 #define ENDLN "END\n"
-#define NETWORK_DOWN 0
+#define NETWORK_DOWN 1
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -31,10 +31,11 @@ typedef enum {
 int sockfd;
 
 void init_conn();
-void recv_matrix();
+int recv_matrix();
 void send_matrix(int n, MessageType mt);
 void recv_payload(char *payload);
-void request_matrix();
+int request_matrix();
 void query_server_for_highest();
+float get_cpu_clock_speed();
 
 #endif

@@ -41,7 +41,6 @@ int main(int argc, char** argv) {
     //Starting solving:
     int size;
     if(NETWORK_DOWN) {
-        size = 337;
         if(highest) size = getHighestFileSize();
         readFromFile(size, matrix);
     } else {
