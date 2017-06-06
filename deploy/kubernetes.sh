@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# lscpu | grep "CPU MHz:" | cut -f 17 -d " "
 # See https://kubernetes.io/docs/getting-started-guides/kubeadm/
 # For kubeadm reference
 

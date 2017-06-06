@@ -51,7 +51,7 @@ void masterInit() {
     } else {
         int sockfd = init_conn(RAMSEY_HOSTNAME, RAMSEY_PORT);
         size = request_matrix(sockfd);
-        requestSlaves(sockfd, NUM_SLAVES);
+        // requestSlaves(sockfd, NUM_SLAVES);
     }
 
     //TODO: SEND MATRIX.
