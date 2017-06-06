@@ -58,18 +58,18 @@ void masterInit() {
 
 int main(int argc, char** argv) {
 
-    if (argc < 2 || argc > 3) {
-        printf("Arguments must be <port> <opt: master, def:false>");
-        exit(0);
-    }
+    // if (argc < 2 || argc > 3) {
+    //     printf("Arguments must be <port> <opt: master, def:false>");
+    //     exit(0);
+    // }
 
     TupleClique tc;
     int maxDepth;
     int maxWidth;
-    int port = atoi(argv[1]);
+    // int port = atoi(argv[1]);
     // bool master = (bool) (argc == 3 ? atoi(argv[2]) : 0);
     int master = 1;
-    printf("---------------\n STARTED. port:%i, master:%i \n ----------------\n", port, master);
+    // printf("---------------\n STARTED. port:%i, master:%i \n ----------------\n", port, master);
 
     //One time initializations:
     cliqueCountInit();
