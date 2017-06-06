@@ -61,12 +61,12 @@ func New(
 func (gs *GossipServer) GetIP() string {
   name, err := os.Hostname()
   if err != nil {
-    fmt.Printf("Hostname Retrieval Error: %v\n", err)
+    gs.Log("Hostname Retrieval Error: %v\n", err)
     return "-1"
   }
   addrs, err := net.LookupHost(name)
   if err != nil {
-    fmt.Printf("IP Address Retrieval Error: %v\n", err)
+    gs.Log("IP Address Retrieval Error: %v\n", err)
     return "-1"
   }
   for _, a := range addrs {
@@ -166,7 +166,7 @@ func (gs *GossipServer) ProcessClientRegister(conn net.Conn) {
 }
 
 func (gs *GossipServer) ProcessRamseyRegister(conn net.Conn) {
-  fmt.Printf("Registering ramsey\n")
+  gs.Log("Registering ramsey\n")
   gs.RegisterRamsey(conn)
   gs.SendMatrixACK(conn)
 }

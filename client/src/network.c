@@ -136,7 +136,6 @@ void recv_payload(char *payload) {
   printf("Received Payload from Server\n");
   *tmp = '\0';
   printf("%s\n", payload);
-  
 }
 
 float get_cpu_clock_speed() {
